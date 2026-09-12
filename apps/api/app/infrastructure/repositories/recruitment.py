@@ -1,18 +1,27 @@
-from app.infrastructure.models.recruitment import Company, Drive, Opportunity, Offer
-from app.infrastructure.repositories.base import BaseRepository
+from uuid import UUID
+from app.infrastructure.models.recruitment import Company, Drive, Opportunity, Offer, OfferEvent, DreamEvent
+from app.infrastructure.repositories.base import MutableRepository, EventRepository
 
-class CompanyRepository(BaseRepository[Company]):
-    def __init__(self, session):
-        super().__init__(session, Company)
+class CompanyRepository(MutableRepository[Company]):
+    def __init__(self, session, institution_id: UUID):
+        super().__init__(session, Company, institution_id)
 
-class DriveRepository(BaseRepository[Drive]):
-    def __init__(self, session):
-        super().__init__(session, Drive)
+class DriveRepository(MutableRepository[Drive]):
+    def __init__(self, session, institution_id: UUID):
+        super().__init__(session, Drive, institution_id)
 
-class OpportunityRepository(BaseRepository[Opportunity]):
-    def __init__(self, session):
-        super().__init__(session, Opportunity)
+class OpportunityRepository(MutableRepository[Opportunity]):
+    def __init__(self, session, institution_id: UUID):
+        super().__init__(session, Opportunity, institution_id)
 
-class OfferRepository(BaseRepository[Offer]):
-    def __init__(self, session):
-        super().__init__(session, Offer)
+class OfferRepository(MutableRepository[Offer]):
+    def __init__(self, session, institution_id: UUID):
+        super().__init__(session, Offer, institution_id)
+
+class OfferEventRepository(EventRepository[OfferEvent]):
+    def __init__(self, session, institution_id: UUID):
+        super().__init__(session, OfferEvent, institution_id)
+
+class DreamEventRepository(EventRepository[DreamEvent]):
+    def __init__(self, session, institution_id: UUID):
+        super().__init__(session, DreamEvent, institution_id)

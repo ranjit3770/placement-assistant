@@ -136,3 +136,20 @@ class DreamLock(TenantRow):
         ForeignKeyConstraint(["institution_id", "academic_year_id", "drive_id"], ["placement_drives.institution_id", "placement_drives.academic_year_id", "placement_drives.id"]),
         scoped_fk("policy_version_id", "policy_versions"), UniqueConstraint("institution_id", "student_id", "drive_id", "declaration_id"),
     )
+
+
+class ActiveDreamApproval(TenantRow):
+    __tablename__ = "active_dream_approvals"
+    student_id: Mapped[UUID]
+    academic_year_id: Mapped[UUID]
+    declaration_id: Mapped[UUID]
+    constraints = (
+        scoped_fk("student_id", "students"),
+        scoped_fk("academic_year_id", "academic_years"),
+        ForeignKeyConstraint(
+            ["institution_id", "student_id", "academic_year_id", "declaration_id"],
+            ["student_dream_companies.institution_id", "student_dream_companies.student_id", "student_dream_companies.academic_year_id", "student_dream_companies.id"]
+        ),
+        UniqueConstraint("institution_id", "student_id", "academic_year_id"),
+    )
+

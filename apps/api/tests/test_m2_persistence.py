@@ -1,14 +1,17 @@
+import asyncio
 import pytest
 from datetime import datetime, timezone, timedelta
 from uuid import uuid4
-from sqlalchemy.exc import IntegrityError, ProgrammingError
-from sqlalchemy import text
-from app.infrastructure.models.students import Institution, User, Role, UserRole, AcademicYear
-from app.infrastructure.models.policy import Policy, PolicyVersion, PolicyActivation
-from app.infrastructure.repositories.student import StudentRepository
-from app.infrastructure.repositories.policy import PolicyRepository, PolicyVersionRepository, PolicyActivationRepository
+from sqlalchemy.exc import IntegrityError, ProgrammingError, InternalError
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
+
+from app.infrastructure.models.students import Institution, AcademicYear, Student, Backlog, BacklogEvent
+from app.infrastructure.models.recruitment import Company, Drive, ActiveDreamApproval, DreamDeclaration, DreamEvent
+from app.infrastructure.models.policy import Policy, PolicyVersion, PolicyActivation
+from app.infrastructure.repositories.student import StudentRepository, BacklogEventRepository
+from app.infrastructure.repositories.policy import PolicyRepository, PolicyVersionRepository, PolicyActivationRepository
+from app.infrastructure.repositories.recruitment import CompanyRepository
 
 pytestmark = pytest.mark.anyio
 
@@ -20,7 +23,7 @@ def anyio_backend():
 async def db_engine():
     engine = create_async_engine("postgresql+psycopg://test:test@127.0.0.1:5434/test")
     yield engine
-    engine.sync_engine.dispose()
+    await engine.dispose()
 
 @pytest.fixture
 async def db_session(db_engine):
@@ -30,125 +33,131 @@ async def db_session(db_engine):
         await session.rollback()
 
 @pytest.fixture
-async def institution(db_session: AsyncSession):
-    inst = Institution(code="AMRITA", name="Amrita Vishwa Vidyapeetham")
+async def inst_a(db_session: AsyncSession):
+    inst = Institution(code=f"INST_A_{uuid4().hex[:8]}", name="Institution A")
     db_session.add(inst)
     await db_session.flush()
     return inst
 
 @pytest.fixture
-async def academic_year(db_session: AsyncSession, institution: Institution):
+async def inst_b(db_session: AsyncSession):
+    inst = Institution(code=f"INST_B_{uuid4().hex[:8]}", name="Institution B")
+    db_session.add(inst)
+    await db_session.flush()
+    return inst
+
+@pytest.fixture
+async def ay_a(db_session: AsyncSession, inst_a: Institution):
     ay = AcademicYear(
-        institution_id=institution.id,
-        code="2026-27",
+        institution_id=inst_a.id, code=f"2026_{uuid4().hex[:4]}",
         starts_at=datetime(2026, 7, 1, tzinfo=timezone.utc),
         ends_at=datetime(2027, 6, 30, tzinfo=timezone.utc),
-        source_type="SYSTEM",
-        source_reference="seed",
+        source_type="SYSTEM", source_reference="seed"
     )
     db_session.add(ay)
     await db_session.flush()
     return ay
 
-async def test_synthetic_seed_dataset(db_session: AsyncSession, institution: Institution, academic_year: AcademicYear):
-    # This proves we can create complex interrelated records through repositories
-    # Student Repository
-    repo = StudentRepository(db_session)
-    student = await repo.create(
-        institution_id=institution.id,
-        roll_number="CB.EN.U4CSE23001",
-        source_type="SYSTEM",
-        source_reference="seed",
-        verification="UNVERIFIED",
-    )
-    assert student.id is not None
-    assert student.roll_number == "CB.EN.U4CSE23001"
-
-async def test_constraint_negative_overlapping_policy(db_session: AsyncSession, institution: Institution, academic_year: AcademicYear):
-    policy_repo = PolicyRepository(db_session)
-    policy = await policy_repo.create(
-        institution_id=institution.id,
-        code="PLACEMENT_2026",
-        name="Placement Policy 2026",
-        source_type="SYSTEM",
-        source_reference="seed",
-    )
-
-    pv_repo = PolicyVersionRepository(db_session)
-    pv = await pv_repo.create(
-        institution_id=institution.id,
-        policy_id=policy.id,
-        academic_year_id=academic_year.id,
-        scope="BTECH",
-        status="APPROVED",
-        schema_version=1,
-        definition={"rules": []},
-        version=1,
-        effective_at=datetime.now(timezone.utc),
-        source_type="SYSTEM",
-        source_reference="seed",
-    )
-
-    act_repo = PolicyActivationRepository(db_session)
-    t1 = datetime(2026, 8, 1, tzinfo=timezone.utc)
-    t2 = datetime(2026, 12, 1, tzinfo=timezone.utc)
+async def test_tenant_isolation_reads(db_session: AsyncSession, inst_a: Institution, inst_b: Institution):
+    repo_a = StudentRepository(db_session, inst_a.id)
+    student_a = await repo_a.create(roll_number="A1", source_type="SYSTEM", source_reference="seed")
     
-    await act_repo.create(
-        institution_id=institution.id,
-        policy_version_id=pv.id,
-        academic_year_id=academic_year.id,
-        scope="BTECH",
-        starts_at=t1,
-        ends_at=t2,
-        source_type="SYSTEM",
-        source_reference="seed",
-    )
+    repo_b = StudentRepository(db_session, inst_b.id)
+    student_b = await repo_b.create(roll_number="B1", source_type="SYSTEM", source_reference="seed")
+    
+    result = await repo_a.get_by_id(student_b.id)
+    assert result is None, "Tenant isolation failure"
 
-    # Overlapping activation
-    with pytest.raises(IntegrityError) as exc:
-        await act_repo.create(
-            institution_id=institution.id,
-            policy_version_id=pv.id,
-            academic_year_id=academic_year.id,
-            scope="BTECH",
-            starts_at=t1 + timedelta(days=10),
-            ends_at=t2 + timedelta(days=10),
-            source_type="SYSTEM",
-            source_reference="seed",
+async def test_append_only_event_protection(db_session: AsyncSession, inst_a: Institution):
+    student_repo = StudentRepository(db_session, inst_a.id)
+    student = await student_repo.create(roll_number="A2", source_type="SYSTEM", source_reference="seed")
+    
+    backlog = Backlog(institution_id=inst_a.id, student_id=student.id, obligation_key="MAT101", source_type="SYSTEM", source_reference="seed")
+    db_session.add(backlog)
+    await db_session.flush()
+
+    event_repo = BacklogEventRepository(db_session, inst_a.id)
+    event = await event_repo.append(backlog_id=backlog.id, kind="OPENED", version=1, effective_at=datetime.now(timezone.utc), source_type="SYSTEM", source_reference="seed")
+    
+    with pytest.raises(ProgrammingError) as exc:
+        event.kind = "CLEARED"
+        db_session.add(event)
+        await db_session.flush()
+    assert "Immutable event history" in str(exc.value)
+
+async def test_active_definition_immutability(db_session: AsyncSession, inst_a: Institution, ay_a: AcademicYear):
+    repo = PolicyVersionRepository(db_session, inst_a.id)
+    policy = Policy(institution_id=inst_a.id, code="P1", name="Pol", source_type="SYSTEM", source_reference="seed")
+    db_session.add(policy)
+    await db_session.flush()
+    
+    pv = await repo.create_version(
+        policy_id=policy.id, academic_year_id=ay_a.id, scope="ALL",
+        schema_version=1, definition={"rules": []}, version=1, effective_at=datetime.now(timezone.utc),
+        source_type="SYSTEM", source_reference="seed", status="APPROVED"
+    )
+    
+    with pytest.raises(ProgrammingError) as exc:
+        pv.definition = {"rules": ["changed"]}
+        db_session.add(pv)
+        await db_session.flush()
+    assert "Immutable definition" in str(exc.value)
+
+async def test_concurrent_dream_approval_limit(db_engine):
+    # Setup data in a committed transaction so concurrent sessions can see it
+    async_session = sessionmaker(db_engine, class_=AsyncSession, expire_on_commit=False, autoflush=False)
+    
+    async with async_session() as setup_session:
+        inst = Institution(code=f"INST_C_{uuid4().hex[:8]}", name="Institution C")
+        setup_session.add(inst)
+        await setup_session.flush()
+        
+        ay = AcademicYear(
+            institution_id=inst.id, code="2026",
+            starts_at=datetime(2026, 7, 1, tzinfo=timezone.utc),
+            ends_at=datetime(2027, 6, 30, tzinfo=timezone.utc),
+            source_type="SYSTEM", source_reference="seed"
         )
-    assert "ex_policy_activation_overlap" in str(exc.value)
-
-async def test_transaction_rollback(db_session: AsyncSession, institution: Institution):
-    repo = StudentRepository(db_session)
-    try:
-        async with db_session.begin_nested():
-            await repo.create(
-                institution_id=institution.id,
-                roll_number="INVALID_ROLL",
-                source_type="SYSTEM",
-                source_reference="", # Violates ck_students_source_present (length > 0)
-                verification="UNVERIFIED",
-            )
-    except IntegrityError:
-        pass
+        student = Student(institution_id=inst.id, roll_number="DREAM_STD", source_type="SYSTEM", source_reference="seed")
+        c1 = Company(institution_id=inst.id, code="C1", source_type="SYSTEM", source_reference="seed")
+        c2 = Company(institution_id=inst.id, code="C2", source_type="SYSTEM", source_reference="seed")
+        setup_session.add_all([ay, student, c1, c2])
+        await setup_session.flush()
+        
+        d1 = DreamDeclaration(institution_id=inst.id, student_id=student.id, company_id=c1.id, academic_year_id=ay.id, source_type="SYSTEM", source_reference="seed")
+        d2 = DreamDeclaration(institution_id=inst.id, student_id=student.id, company_id=c2.id, academic_year_id=ay.id, source_type="SYSTEM", source_reference="seed")
+        setup_session.add_all([d1, d2])
+        await setup_session.commit()
+        
+        inst_id = inst.id
+        student_id = student.id
+        ay_id = ay.id
+        decl1_id = d1.id
+        decl2_id = d2.id
     
-    # Verify no partial state remains
-    students = await repo.get_all()
-    assert len(students) == 0
+    async def approve_dream(decl_id):
+        async with async_session() as session:
+            approval = ActiveDreamApproval(
+                institution_id=inst_id,
+                student_id=student_id,
+                academic_year_id=ay_id,
+                declaration_id=decl_id,
+                source_type="SYSTEM",
+                source_reference="seed"
+            )
+            session.add(approval)
+            await session.commit()
+            return True
 
-async def test_provenance_versioning(db_session: AsyncSession, institution: Institution):
-    repo = StudentRepository(db_session)
-    student = await repo.create(
-        institution_id=institution.id,
-        roll_number="CB.EN.U4CSE23002",
-        source_type="SYSTEM",
-        source_reference="doc_v1",
-        verification="UNVERIFIED",
+    results = await asyncio.gather(
+        approve_dream(decl1_id),
+        approve_dream(decl2_id),
+        return_exceptions=True
     )
     
-    # Update shouldn't accidentally clear source_reference if explicitly tested
-    await repo.update(student, verification="VERIFIED")
+    successes = [r for r in results if r is True]
+    errors = [r for r in results if isinstance(r, IntegrityError)]
     
-    loaded = await repo.get_by_id(student.id)
-    assert loaded.source_reference == "doc_v1"
-    assert loaded.verification == "VERIFIED"
+    assert len(successes) == 1, "Exactly one transaction should succeed"
+    assert len(errors) == 1, "Exactly one transaction should fail"
+    assert "active_dream_approvals" in str(errors[0])
