@@ -1,0 +1,60 @@
+Running M2 Backup/Restore Validation...
+1. Rebuilding Schema in DB-A (test)...
+1.5. Migration Round-trip Verification...
+============================= test session starts ==============================
+platform linux -- Python 3.14.4, pytest-9.1.1, pluggy-1.6.0 -- /home/ranjit/PROJECTS/placement-assistant/apps/api/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /home/ranjit/PROJECTS/placement-assistant/apps/api
+configfile: pyproject.toml
+plugins: anyio-4.15.1
+collecting ... collected 5 items
+
+tests/test_m2_persistence.py::test_tenant_isolation_reads PASSED         [ 20%]
+tests/test_m2_persistence.py::test_append_only_event_protection PASSED   [ 40%]
+tests/test_m2_persistence.py::test_active_definition_immutability PASSED [ 60%]
+tests/test_m2_persistence.py::test_published_requirement_immutability PASSED [ 80%]
+tests/test_m2_persistence.py::test_concurrent_dream_approval_limit PASSED [100%]
+
+============================== 5 passed in 0.74s ===============================
+============================= test session starts ==============================
+platform linux -- Python 3.14.4, pytest-9.1.1, pluggy-1.6.0 -- /home/ranjit/PROJECTS/placement-assistant/apps/api/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /home/ranjit/PROJECTS/placement-assistant/apps/api
+configfile: pyproject.toml
+plugins: anyio-4.15.1
+collecting ... collected 5 items
+
+tests/test_m2_persistence.py::test_tenant_isolation_reads PASSED         [ 20%]
+tests/test_m2_persistence.py::test_append_only_event_protection PASSED   [ 40%]
+tests/test_m2_persistence.py::test_active_definition_immutability PASSED [ 60%]
+tests/test_m2_persistence.py::test_published_requirement_immutability PASSED [ 80%]
+tests/test_m2_persistence.py::test_concurrent_dream_approval_limit PASSED [100%]
+
+============================== 5 passed in 0.77s ===============================
+No new upgrade operations detected.
+2. Loading synthetic data...
+============================= test session starts ==============================
+platform linux -- Python 3.14.4, pytest-9.1.1, pluggy-1.6.0 -- /home/ranjit/PROJECTS/placement-assistant/apps/api/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /home/ranjit/PROJECTS/placement-assistant/apps/api
+configfile: pyproject.toml
+plugins: anyio-4.15.1
+collecting ... collected 5 items
+
+tests/test_m2_persistence.py::test_tenant_isolation_reads PASSED         [ 20%]
+tests/test_m2_persistence.py::test_append_only_event_protection PASSED   [ 40%]
+tests/test_m2_persistence.py::test_active_definition_immutability PASSED [ 60%]
+tests/test_m2_persistence.py::test_published_requirement_immutability PASSED [ 80%]
+tests/test_m2_persistence.py::test_concurrent_dream_approval_limit PASSED [100%]
+
+============================== 5 passed in 0.75s ===============================
+3. Backing up DB-A (schema and data)...
+4. Creating DB-B (test_restore)...
+DROP DATABASE
+CREATE DATABASE
+5. Restoring backup to DB-B...
+6. Validating Schema Equivalence...
+   ✅ Schema identical.
+7. Validating Row Counts and Deterministic Hashes...
+   ✅ Data (row counts & deterministic hashes) identical across all tables.
+M2 Backup/Restore Validation SUCCESSFUL.
