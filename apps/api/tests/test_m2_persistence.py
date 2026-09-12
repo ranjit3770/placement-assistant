@@ -13,6 +13,8 @@ from app.infrastructure.repositories.student import StudentRepository, BacklogEv
 from app.infrastructure.repositories.policy import PolicyRepository, PolicyVersionRepository, PolicyActivationRepository
 from app.infrastructure.repositories.recruitment import CompanyRepository
 
+# M2 FINAL SYNCHRONIZATION
+
 pytestmark = pytest.mark.anyio
 
 @pytest.fixture(scope="session")

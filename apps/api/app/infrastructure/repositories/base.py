@@ -10,6 +10,7 @@ from app.infrastructure.models.common import TenantRow
 
 ModelType = TypeVar("ModelType", bound=TenantRow)
 
+# M2 FINAL SYNCHRONIZATION
 class BaseRepository(Generic[ModelType]):
     def __init__(self, session: AsyncSession, model: type[ModelType], institution_id: UUID):
         self.session = session
