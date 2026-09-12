@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# M2 FINAL SYNCHRONIZATION
 set -eo pipefail
 
 echo "Running M2 Backup/Restore Validation..."

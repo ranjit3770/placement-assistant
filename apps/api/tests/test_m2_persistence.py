@@ -170,25 +170,56 @@ async def test_published_requirement_immutability(db_session: AsyncSession, inst
 
     req = Requirement(institution_id=inst_a.id, opportunity_id=opp.id, source_type="SYSTEM", source_reference="seed")
     db_session.add(req)
-    await db_session.commit()
+    await db_session.flush()
     
     # Published requirement
     req_v = RequirementVersion(
         institution_id=inst_a.id, requirement_id=req.id, compensation_id=comp.id,
-        version=1, effective_at=datetime.now(timezone.utc), published_at=datetime.now(timezone.utc),
+        version=1, effective_at=datetime.now(timezone.utc),
         source_type="SYSTEM", source_reference="seed"
     )
     db_session.add(req_v)
-    await db_session.commit()
+    await db_session.flush()
     
-    criterion = Criterion(
-        institution_id=inst_a.id, requirement_version_id=req_v.id, code="C1",
-        applicability="REQUIRED", operator=">=", operand={"val": 7.0},
+    req_version = req_v
+    req_version_id = req_version.id
+    
+    crit = Criterion(
+        institution_id=inst_a.id, requirement_version_id=req_version_id, code="CGPA_MIN", applicability="REQUIRED",
+        operator=">=", operand={"value": 7.0}, source_type="SYSTEM", source_reference="seed"
+    )
+    db_session.add(crit)
+    await db_session.flush()
+    crit_id = crit.id
+    
+    mem = RequirementMember(
+        institution_id=inst_a.id, criterion_id=crit_id, value="BTech",
         source_type="SYSTEM", source_reference="seed"
     )
-    db_session.add(criterion)
+    db_session.add(mem)
+    await db_session.flush()
+    mem_id = mem.id
+    
+    # Publish requirement version
+    req_version.published_at = datetime.now(timezone.utc)
+    await db_session.flush()
+    
+    # Modifying the criterion is not allowed
     with pytest.raises(ProgrammingError) as exc:
-        await db_session.flush()
+        async with db_session.begin_nested():
+            crit.operand = {"value": 8.0}
+            await db_session.flush()
+    assert "Immutable definition" in str(exc.value)
+    
+    # Inserting a new RequirementMember is not allowed
+    with pytest.raises(ProgrammingError) as exc:
+        async with db_session.begin_nested():
+            new_mem = RequirementMember(
+                institution_id=inst_a.id, criterion_id=crit_id, value="MTech",
+                source_type="SYSTEM", source_reference="seed"
+            )
+            db_session.add(new_mem)
+            await db_session.flush()
     assert "Immutable definition" in str(exc.value)
     
     await db_session.rollback()
