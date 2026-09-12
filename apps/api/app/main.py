@@ -1,0 +1,118 @@
+import logging
+from collections.abc import AsyncIterator, Awaitable, Callable
+from contextlib import asynccontextmanager
+from time import perf_counter
+from typing import Annotated
+from uuid import uuid4
+
+from fastapi import Depends, FastAPI, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse, Response
+from starlette.exceptions import HTTPException
+
+from app.core.config import Settings
+from app.core.logging import configure_logging
+from app.core.security import Principal, current_principal
+from app.infrastructure.dependencies import Dependencies
+
+
+def create_app(settings: Settings | None = None) -> FastAPI:
+    config = settings or Settings()  # type: ignore[call-arg]
+    configure_logging()
+    logger = logging.getLogger("placement")
+
+    @asynccontextmanager
+    async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+        app.state.dependencies = Dependencies(config)
+        try:
+            yield
+        finally:
+            await app.state.dependencies.close()
+
+    app = FastAPI(
+        title="Placement Intelligence API",
+        version="0.1.0",
+        lifespan=lifespan,
+        docs_url="/api/v1/docs" if config.app_env in {"development", "test"} else None,
+        openapi_url="/api/v1/openapi.json" if config.app_env in {"development", "test"} else None,
+        redoc_url=None,
+    )
+    app.state.settings = config
+
+    def error(request: Request, code: str, status: int) -> JSONResponse:
+        return JSONResponse(
+            {"error": {"code": code, "request_id": request.state.request_id}}, status_code=status
+        )
+
+    @app.middleware("http")
+    async def request_context(
+        request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
+        request.state.request_id = str(uuid4())
+        start = perf_counter()
+        try:
+            response = await call_next(request)
+        except Exception as exc:
+            logger.error(
+                "request_failed",
+                extra={
+                    "fields": {
+                        "request_id": request.state.request_id,
+                        "exception_type": type(exc).__name__,
+                    }
+                },
+            )
+            response = error(request, "INTERNAL_ERROR", 500)
+        response.headers["X-Request-ID"] = request.state.request_id
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["Cache-Control"] = "no-store"
+        logger.info(
+            "request",
+            extra={
+                "fields": {
+                    "request_id": request.state.request_id,
+                    "trace_id": request.state.request_id,
+                    "method": request.method,
+                    "route": getattr(request.scope.get("route"), "path", "unmatched"),
+                    "status": response.status_code,
+                    "latency_ms": round((perf_counter() - start) * 1000, 2),
+                }
+            },
+        )
+        return response
+
+    @app.exception_handler(HTTPException)
+    async def http_error(request: Request, exc: HTTPException) -> JSONResponse:
+        codes = {401: "UNAUTHORIZED", 403: "FORBIDDEN", 404: "NOT_FOUND", 405: "METHOD_NOT_ALLOWED"}
+        response = error(request, codes.get(exc.status_code, "REQUEST_ERROR"), exc.status_code)
+        if exc.headers:
+            response.headers.update(exc.headers)
+        return response
+
+    @app.exception_handler(RequestValidationError)
+    async def validation_error(request: Request, exc: RequestValidationError) -> JSONResponse:
+        return error(request, "VALIDATION_ERROR", 422)
+
+    @app.get("/health")
+    async def health() -> dict[str, str]:
+        return {"status": "ok", "service": "placement-api"}
+
+    @app.get("/ready")
+    async def ready(request: Request) -> JSONResponse:
+        checks = await request.app.state.dependencies.check()
+        # PostgreSQL is critical to decisions; AI/vector/cache outages must not disable them.
+        ready = checks["postgres"] == "up"
+        return JSONResponse(
+            {
+                "status": "ready" if ready else "not_ready",
+                "dependencies": checks,
+                "degraded": any(state != "up" for state in checks.values()),
+            },
+            status_code=200 if ready else 503,
+        )
+
+    @app.get("/api/v1/auth/me", response_model=Principal)
+    async def me(principal: Annotated[Principal, Depends(current_principal)]) -> Principal:
+        return principal
+
+    return app
