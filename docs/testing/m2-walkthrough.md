@@ -68,14 +68,19 @@ This document serves as the final Release Candidate evidence package for the M2 
 * **Result:** PASSED. 
 * **Deviation Note:** `pg_dump` normalizes string-array casting in check constraints slightly differently upon restoration, producing minor string casting cosmetic diffs in the schema. However, data row counts and logical schema structure are perfectly preserved and equivalent.
 
+## Final Remediation (R7–R10)
+* **R7 (Migration Downgrade)**: Updated `be3b6aafad0b_m2_remediation_schema.py` downgrade block to correctly drop `tr_policy_version_immutability` and `tr_append_only_events` triggers and functions, guaranteeing reversible migrations.
+* **R8 (Child Graph Immutability)**: Added `tr_policy_rules_immutability`, `tr_requirement_criteria_immutability`, and `tr_requirement_members_immutability` to `be3b6aafad0b_m2_remediation_schema.py`. These prevent `INSERT`, `UPDATE`, and `DELETE` on child rows if their parent definitions (`policy_versions`, `requirement_versions`) are APPROVED/published.
+* **R9 (Child Immutability Negative Tests)**: Expanded `test_m2_persistence.py::test_active_definition_immutability` and `test_m2_persistence.py::test_published_requirement_immutability` to verify child graph protection.
+* **R10 (Deterministic Backup Hashing)**: Updated `test_m2_backup_restore.sh` to construct canonical schema definitions, stripping formatting differences, and using dynamic primary keys via `pg_index` coupled with `row_to_json` to enforce reliable hash checks across `test` and `test_restore` databases.
+
 ---
 
 ## Fresh-Database Validation Confirmation
-* `alembic upgrade head` succeeds seamlessly from a blank slate.
+* `alembic upgrade head` and `alembic downgrade base` and `alembic upgrade head` succeed seamlessly from a blank slate.
 * All `test_m2_persistence.py` tests pass on the fresh schema.
-* Backup/Restore successfully migrates schemas and data reliably.
+* Backup/Restore successfully migrates schemas and data reliably, producing identical deterministic hashes.
 * `alembic check` reports `No new upgrade operations detected.`, confirming zero unintended metadata drift.
-* `git status` is completely clean.
 * All M2 remediation changes and evidence documentation are successfully pushed to `origin/dev`.
 
-**Conclusion:** M2 remediation implementation is frozen and ready for independent re-review.
+**Conclusion:** M2 final remediation (R7-R10) implementation is frozen and ready for independent re-review.

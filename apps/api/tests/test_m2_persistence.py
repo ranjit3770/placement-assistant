@@ -8,7 +8,7 @@ from sqlalchemy.orm import sessionmaker
 
 from app.infrastructure.models.students import Institution, AcademicYear, Student, Backlog, BacklogEvent
 from app.infrastructure.models.recruitment import Company, Drive, ActiveDreamApproval, DreamDeclaration, DreamEvent
-from app.infrastructure.models.policy import Policy, PolicyVersion, PolicyActivation
+from app.infrastructure.models.policy import Policy, PolicyVersion, PolicyActivation, PolicyRule, Requirement, RequirementVersion, Criterion, RequirementMember
 from app.infrastructure.repositories.student import StudentRepository, BacklogEventRepository
 from app.infrastructure.repositories.policy import PolicyRepository, PolicyVersionRepository, PolicyActivationRepository
 from app.infrastructure.repositories.recruitment import CompanyRepository
@@ -86,22 +86,110 @@ async def test_append_only_event_protection(db_session: AsyncSession, inst_a: In
     assert "Immutable event history" in str(exc.value)
 
 async def test_active_definition_immutability(db_session: AsyncSession, inst_a: Institution, ay_a: AcademicYear):
-    repo = PolicyVersionRepository(db_session, inst_a.id)
-    policy = Policy(institution_id=inst_a.id, code="P1", name="Pol", source_type="SYSTEM", source_reference="seed")
+    inst_id = inst_a.id
+    ay_id = ay_a.id
+    repo = PolicyVersionRepository(db_session, inst_id)
+    policy = Policy(institution_id=inst_id, code="P1", name="Pol", source_type="SYSTEM", source_reference="seed")
     db_session.add(policy)
-    await db_session.flush()
+    await db_session.commit()
+    policy_id = policy.id
     
     pv = await repo.create_version(
-        policy_id=policy.id, academic_year_id=ay_a.id, scope="ALL",
+        policy_id=policy_id, academic_year_id=ay_id, scope="ALL",
         schema_version=1, definition={"rules": []}, version=1, effective_at=datetime.now(timezone.utc),
         source_type="SYSTEM", source_reference="seed", status="APPROVED"
     )
+    await db_session.commit()
+    pv_id = pv.id
     
     with pytest.raises(ProgrammingError) as exc:
         pv.definition = {"rules": ["changed"]}
-        db_session.add(pv)
         await db_session.flush()
     assert "Immutable definition" in str(exc.value)
+    
+    await db_session.rollback()
+    
+    rule = PolicyRule(institution_id=inst_id, policy_version_id=pv_id, code="R1", definition={"x": 1}, source_type="SYSTEM", source_reference="seed")
+    db_session.add(rule)
+    with pytest.raises(ProgrammingError) as exc:
+        await db_session.flush()
+    assert "Immutable definition" in str(exc.value)
+    
+    await db_session.rollback()
+    
+    # Verify that a DRAFT policy version CAN have rules added
+    pv_draft = await repo.create_version(
+        policy_id=policy_id, academic_year_id=ay_id, scope="ALL",
+        schema_version=1, definition={"rules": []}, version=2, effective_at=datetime.now(timezone.utc),
+        source_type="SYSTEM", source_reference="seed", status="DRAFT"
+    )
+    await db_session.commit()
+    pv_draft_id = pv_draft.id
+    
+    rule_draft = PolicyRule(institution_id=inst_id, policy_version_id=pv_draft_id, code="R2", definition={"x": 2}, source_type="SYSTEM", source_reference="seed")
+    db_session.add(rule_draft)
+    await db_session.flush()
+    
+    # Updating a rule in DRAFT is allowed
+    rule_draft.definition = {"x": 3}
+    await db_session.flush()
+    
+    # Transitioning to APPROVED is allowed
+    # Actually, we didn't rollback since creation of pv_draft, so we can just use pv_draft, but wait, we need to make sure we don't hit MissingGreenlet on pv_draft.status
+    pv_draft.status = "APPROVED"
+    await db_session.flush()
+    
+    # Now it is immutable
+    rule_draft.definition = {"x": 4}
+    with pytest.raises(ProgrammingError) as exc:
+        await db_session.flush()
+    assert "Immutable definition" in str(exc.value)
+    
+    await db_session.rollback()
+
+async def test_published_requirement_immutability(db_session: AsyncSession, inst_a: Institution, ay_a: AcademicYear):
+    # Setup full opportunity structure
+    from app.infrastructure.models.recruitment import CompanyRole
+    from app.infrastructure.models.recruitment import Compensation
+    from app.infrastructure.models.recruitment import Opportunity
+    c = Company(institution_id=inst_a.id, code="C1", source_type="SYSTEM", source_reference="seed")
+    db_session.add(c)
+    await db_session.flush()
+    
+    role = CompanyRole(institution_id=inst_a.id, company_id=c.id, code="R1", title="R1", source_type="SYSTEM", source_reference="seed")
+    drive = Drive(institution_id=inst_a.id, company_id=c.id, academic_year_id=ay_a.id, source_type="SYSTEM", source_reference="seed")
+    db_session.add_all([role, drive])
+    await db_session.flush()
+    
+    opp = Opportunity(institution_id=inst_a.id, company_id=c.id, role_id=role.id, drive_id=drive.id, source_type="SYSTEM", source_reference="seed")
+    comp = Compensation(institution_id=inst_a.id, original_text="x", currency="INR", period="ANNUAL", basis="TOTAL_CTC", shape="UNKNOWN", comparison_state="UNRESOLVED", review_reason="missing", source_type="SYSTEM", source_reference="seed")
+    db_session.add_all([opp, comp])
+    await db_session.flush()
+
+    req = Requirement(institution_id=inst_a.id, opportunity_id=opp.id, source_type="SYSTEM", source_reference="seed")
+    db_session.add(req)
+    await db_session.commit()
+    
+    # Published requirement
+    req_v = RequirementVersion(
+        institution_id=inst_a.id, requirement_id=req.id, compensation_id=comp.id,
+        version=1, effective_at=datetime.now(timezone.utc), published_at=datetime.now(timezone.utc),
+        source_type="SYSTEM", source_reference="seed"
+    )
+    db_session.add(req_v)
+    await db_session.commit()
+    
+    criterion = Criterion(
+        institution_id=inst_a.id, requirement_version_id=req_v.id, code="C1",
+        applicability="REQUIRED", operator=">=", operand={"val": 7.0},
+        source_type="SYSTEM", source_reference="seed"
+    )
+    db_session.add(criterion)
+    with pytest.raises(ProgrammingError) as exc:
+        await db_session.flush()
+    assert "Immutable definition" in str(exc.value)
+    
+    await db_session.rollback()
 
 async def test_concurrent_dream_approval_limit(db_engine):
     # Setup data in a committed transaction so concurrent sessions can see it
