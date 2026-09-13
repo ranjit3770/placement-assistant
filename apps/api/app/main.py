@@ -14,6 +14,8 @@ from app.core.config import Settings
 from app.core.logging import configure_logging
 from app.core.security import Principal, current_principal
 from app.infrastructure.dependencies import Dependencies
+from sqlalchemy.exc import IntegrityError, ProgrammingError
+import psycopg.errors
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -53,6 +55,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         try:
             response = await call_next(request)
         except Exception as exc:
+            import traceback
+            traceback.print_exc()
             logger.error(
                 "request_failed",
                 extra={
@@ -83,7 +87,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @app.exception_handler(HTTPException)
     async def http_error(request: Request, exc: HTTPException) -> JSONResponse:
-        codes = {401: "UNAUTHORIZED", 403: "FORBIDDEN", 404: "NOT_FOUND", 405: "METHOD_NOT_ALLOWED"}
+        codes = {400: "BAD_REQUEST", 401: "UNAUTHORIZED", 403: "FORBIDDEN", 404: "NOT_FOUND", 405: "METHOD_NOT_ALLOWED", 409: "CONFLICT"}
         response = error(request, codes.get(exc.status_code, "REQUEST_ERROR"), exc.status_code)
         if exc.headers:
             response.headers.update(exc.headers)
@@ -92,6 +96,16 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.exception_handler(RequestValidationError)
     async def validation_error(request: Request, exc: RequestValidationError) -> JSONResponse:
         return error(request, "VALIDATION_ERROR", 422)
+
+    @app.exception_handler(IntegrityError)
+    async def db_integrity_error(request: Request, exc: IntegrityError) -> JSONResponse:
+        return error(request, "CONFLICT", 409)
+
+    @app.exception_handler(ProgrammingError)
+    async def db_programming_error(request: Request, exc: ProgrammingError) -> JSONResponse:
+        if isinstance(exc.orig, psycopg.errors.RaiseException):
+            return error(request, "INVALID_OPERATION", 400)
+        raise exc
 
     @app.get("/health")
     async def health() -> dict[str, str]:
@@ -114,5 +128,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.get("/api/v1/auth/me", response_model=Principal)
     async def me(principal: Annotated[Principal, Depends(current_principal)]) -> Principal:
         return principal
+
+    from app.api.routers import companies, opportunities, requirements
+    app.include_router(companies.router, prefix="/api/v1")
+    app.include_router(opportunities.router, prefix="/api/v1")
+    app.include_router(requirements.router, prefix="/api/v1")
 
     return app

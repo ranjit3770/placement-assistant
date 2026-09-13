@@ -1,0 +1,19 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.4, pytest-9.1.1, pluggy-1.6.0 -- /home/ranjit/PROJECTS/placement-assistant/apps/api/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /home/ranjit/PROJECTS/placement-assistant/apps/api
+configfile: pyproject.toml
+plugins: anyio-4.15.1
+collecting ... collected 9 items
+
+tests/test_m3_api.py::test_companies_api PASSED
+tests/test_m3_api.py::test_opportunities_api PASSED
+tests/test_m3_api.py::test_requirements_api PASSED
+tests/test_m3_api.py::test_tenant_isolation PASSED
+tests/test_m3_api.py::test_company_revisions PASSED
+tests/test_m3_api.py::test_company_role_ownership PASSED
+tests/test_m3_api.py::test_opportunity_close_idempotency PASSED
+tests/test_m3_api.py::test_requirement_transaction_rollback PASSED
+tests/test_m3_api.py::test_published_version_mutation_rejection PASSED
+
+============================== 9 passed in 1.92s ===============================

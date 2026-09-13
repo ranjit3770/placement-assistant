@@ -1,5 +1,5 @@
 from uuid import UUID
-from app.infrastructure.models.recruitment import Company, Drive, Opportunity, Offer, OfferEvent, DreamEvent
+from app.infrastructure.models.recruitment import Company, Drive, Opportunity, Offer, OfferEvent, DreamEvent, CompanyRevision, CompanyRole, Compensation
 from app.infrastructure.repositories.base import MutableRepository, EventRepository
 
 class CompanyRepository(MutableRepository[Company]):
@@ -25,3 +25,15 @@ class OfferEventRepository(EventRepository[OfferEvent]):
 class DreamEventRepository(EventRepository[DreamEvent]):
     def __init__(self, session, institution_id: UUID):
         super().__init__(session, DreamEvent, institution_id)
+
+class CompanyRevisionRepository(MutableRepository[CompanyRevision]):
+    def __init__(self, session, institution_id: UUID):
+        super().__init__(session, CompanyRevision, institution_id)
+
+class CompanyRoleRepository(MutableRepository[CompanyRole]):
+    def __init__(self, session, institution_id: UUID):
+        super().__init__(session, CompanyRole, institution_id)
+
+class CompensationRepository(MutableRepository[Compensation]):
+    def __init__(self, session, institution_id: UUID):
+        super().__init__(session, Compensation, institution_id)
