@@ -3,12 +3,55 @@ platform linux -- Python 3.14.4, pytest-9.1.1, pluggy-1.6.0 -- /home/ranjit/PROJ
 cachedir: .pytest_cache
 rootdir: /home/ranjit/PROJECTS/placement-assistant/apps/api
 configfile: pyproject.toml
+testpaths: tests
 plugins: anyio-4.15.1
-collecting ... collected 4 items
+collecting ... collected 36 items
 
-tests/test_m4_api.py::test_document_metadata PASSED
-tests/test_m4_api.py::test_policy_creation_and_lifecycle PASSED
-tests/test_m4_api.py::test_concurrent_policy_activation PASSED
-tests/test_m4_api.py::test_concurrent_api_activation PASSED
+tests/test_foundation.py::test_liveness_and_error_redaction PASSED       [  2%]
+tests/test_foundation.py::test_readiness[up-up-up-200-False] PASSED      [  5%]
+tests/test_foundation.py::test_readiness[down-up-up-503-True] PASSED     [  8%]
+tests/test_foundation.py::test_readiness[up-down-down-200-True] PASSED   [ 11%]
+tests/test_foundation.py::test_dependency_probes_timeout_and_hide_exceptions PASSED [ 13%]
+tests/test_foundation.py::test_invalid_authentication[absent] PASSED     [ 16%]
+tests/test_foundation.py::test_invalid_authentication[malformed] PASSED  [ 19%]
+tests/test_foundation.py::test_invalid_authentication[expired] PASSED    [ 22%]
+tests/test_foundation.py::test_invalid_authentication[issuer] PASSED     [ 25%]
+tests/test_foundation.py::test_invalid_authentication[audience] PASSED   [ 27%]
+tests/test_foundation.py::test_invalid_authentication[role] PASSED       [ 30%]
+tests/test_foundation.py::test_invalid_authentication[signature] PASSED  [ 33%]
+tests/test_foundation.py::test_invalid_authentication[institution] PASSED [ 36%]
+tests/test_foundation.py::test_invalid_authentication[missing_exp] PASSED [ 38%]
+tests/test_foundation.py::test_valid_principal PASSED                    [ 41%]
+tests/test_foundation.py::test_production_docs_disabled PASSED           [ 44%]
+tests/test_foundation.py::test_configuration_rejects_short_secret PASSED [ 47%]
+tests/test_foundation.py::test_logs_have_structured_operational_fields PASSED [ 50%]
+tests/test_m2_persistence.py::test_tenant_isolation_reads PASSED         [ 52%]
+tests/test_m2_persistence.py::test_append_only_event_protection PASSED   [ 55%]
+tests/test_m2_persistence.py::test_active_definition_immutability PASSED [ 58%]
+tests/test_m2_persistence.py::test_published_requirement_immutability PASSED [ 61%]
+tests/test_m2_persistence.py::test_concurrent_dream_approval_limit PASSED [ 63%]
+tests/test_m3_api.py::test_companies_api PASSED                          [ 66%]
+tests/test_m3_api.py::test_opportunities_api PASSED                      [ 69%]
+tests/test_m3_api.py::test_requirements_api PASSED                       [ 72%]
+tests/test_m3_api.py::test_tenant_isolation PASSED                       [ 75%]
+tests/test_m3_api.py::test_company_revisions PASSED                      [ 77%]
+tests/test_m3_api.py::test_company_role_ownership PASSED                 [ 80%]
+tests/test_m3_api.py::test_opportunity_close_idempotency PASSED          [ 83%]
+tests/test_m3_api.py::test_requirement_transaction_rollback PASSED       [ 86%]
+tests/test_m3_api.py::test_published_version_mutation_rejection PASSED   [ 88%]
+tests/test_m4_api.py::test_document_metadata PASSED                      [ 91%]
+tests/test_m4_api.py::test_policy_creation_and_lifecycle PASSED          [ 94%]
+tests/test_m4_api.py::test_concurrent_policy_activation PASSED           [ 97%]
+tests/test_m4_api.py::test_concurrent_api_activation PASSED              [100%]
 
-============================== 4 passed in 1.78s ===============================
+=============================== warnings summary ===============================
+.venv/lib/python3.14/site-packages/fastapi/testclient.py:1
+  /home/ranjit/PROJECTS/placement-assistant/apps/api/.venv/lib/python3.14/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+.venv/lib/python3.14/site-packages/starlette/testclient.py:53
+  /home/ranjit/PROJECTS/placement-assistant/apps/api/.venv/lib/python3.14/site-packages/starlette/testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 36 passed, 2 warnings in 3.61s ========================
