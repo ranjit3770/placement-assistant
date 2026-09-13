@@ -661,41 +661,18 @@ Only then does the milestone become:
 ACCEPTED
 ```
 
-Current M2 state:
+Current Gate Status:
 
 ```text
-M2
-│
-├── Initial implementation
-│       ↓
-├── Independent review
-│       ↓
-├── Remediation
-│       ↓
-└── ACCEPTED / REMEDIATED
+M1  🟢 CERTIFIED / FROZEN
+M2  🟢 CERTIFIED / FROZEN
+M3  🟢 CERTIFIED / FROZEN
+M4  🟢 CERTIFIED / FROZEN
 ```
 
-Do not mark M2 `ACCEPTED` based solely on an implementation agent's statement.
+Do not mark a milestone `CERTIFIED` based solely on an implementation agent's statement.
 
-## 18.1. M3 Gate Status
-
-Current M3 state:
-
-```text
-M3
-│
-├── Initial implementation
-│       ↓
-├── Targeted Tests
-│       ↓
-├── Independent review
-│       ↓
-├── Remediation (G01, G02)
-│       ↓
-└── CERTIFIED
-```
-
-With M3 CERTIFIED, M4 (Policy Lifecycle) is currently UNLOCKED and in the planning phase.
+With M4 CERTIFIED, M5 (Deterministic Policy / Eligibility Decision) is currently UNLOCKED and in the planning/contract phase.
 
 ---
 
