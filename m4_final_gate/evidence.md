@@ -13,7 +13,7 @@
 | **Activation Overlap** | Handled by `ex_policy_activation_overlap` DB constraint, returns 409 | 🟢 PASS |
 | **Atomicity** | `activate_policy` executed in same transaction | 🟢 PASS |
 | **Archive Reconcile** | Archiving a policy closes its active `PolicyActivation` by setting `ends_at` | 🟢 PASS |
-| **Concurrency** | Tested by `test_concurrent_policy_activation` with isolated session gathering | 🟢 PASS |
+| **Concurrency** | Tested by `test_concurrent_policy_activation` and `test_concurrent_api_activation` with actual overlapping API race conditions | 🟢 PASS |
 
 ## Test Evidence
 All tests run successfully. See `m4_final_gate/tests.txt` for the API logs showing endpoints returning `201`, `200`, `409` (Overlap/Conflict), `400` (Invalid Transition), and `403` (Unauthorized).
