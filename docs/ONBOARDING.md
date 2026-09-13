@@ -669,6 +669,10 @@ M2  🟢 CERTIFIED / FROZEN
 M3  🟢 CERTIFIED / FROZEN
 M4  🟢 CERTIFIED / FROZEN
 M5  🟢 CERTIFIED / FROZEN
+M6  🟡 IMPLEMENTATION IN PROGRESS
+      ✅ Increment 1 — Source authority
+      ✅ Increment 2 — Binding lifecycle
+      ✅ Increment 3 — Durable Ingestion
 ```
 
 M5 was independently certified at commit `d75ffbb06a9479e8451a44f82af870864cbfb38b`,
@@ -679,8 +683,7 @@ not prove the ambiguity branch. The reviewer classified this as non-blocking deb
 
 M1–M5 are frozen. M6 design is approved and implementation is in progress; start with the
 [M6 RAG contract](contracts/rag-contract.md) and [M6 plan](testing/m6-plan.md).
-The [M6 status record](project-status/m6.md) separates the implemented source-storage
-increment from the remaining ingestion/retrieval and certification gates.
+The [M6 status record](project-status/m6.md) separates the implemented source-storage, binding lifecycle, and durable ingestion increments from the remaining embedding/retrieval and certification gates.
 Do not reopen certified milestones without a concrete regression or dependency.
 
 Do not mark a milestone `CERTIFIED` based solely on an implementation agent's statement.
