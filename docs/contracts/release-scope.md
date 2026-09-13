@@ -1,5 +1,20 @@
 # Implementation scope and decisions
 
+## Current gate status — 2026-09-13
+
+M1–M5 are CERTIFIED / FROZEN per the supplied independent review. M5 is pinned to
+`d75ffbb06a9479e8451a44f82af870864cbfb38b`; see the
+[certification record](../project-status/m5.md). M6 is IN_PROGRESS at its independent
+contract/design gate, with implementation not yet authorized by an accepted M6 contract.
+This does not automatically certify an R1 or R2 release or production readiness.
+
+The certified M5 aggregation is FAIL > UNKNOWN > PASS. The earlier UNKNOWN-first
+proposal and M2 progress statements below are historical planning notes, superseded
+by this status and the [eligibility contract](eligibility-contract.md).
+The R4 naming discrepancy remains separate and does not block M6 design.
+
+## Historical planning record (pre-M2; not current milestone status)
+
 Baseline: supplied SRS v2 and roadmap v2. The original documents are preserved.
 Status: M0 ACCEPTED baseline; M1 ACCEPTED (foundation scope), per the project
 coordinator's 2026-09-12 direction. M2 IN_PROGRESS — Domain Model + ERD.
@@ -40,7 +55,7 @@ boundary so far: login, persisted users, revocation, and scoped RBAC remain pend
 Baseline acceptance does not resolve every later institutional interpretation.
 Keep remaining choices explicit in the affected M3–M5 contracts.
 
-## Current increment: M2 domain and database
+## Historical increment: M2 domain and database
 
 Domain Model + ERD and the three confirmed baseline choices are now documented.
 Next: physical PostgreSQL schema, SQLAlchemy models, Alembic migrations, scoped

@@ -1,13 +1,12 @@
 # Placement Intelligence
 
-Implementation begins with the platform foundation in [the roadmap](docs/roadmap.md),
-using [SRS v2](docs/srs.md). This preview does not yet evaluate students or use AI.
-See [scope and unresolved decisions](docs/contracts/release-scope.md).
+M1–M5 are certified and frozen. M5 provides deterministic eligibility, immutable
+decisions and snapshot replay; its certified commit and evidence caveat are in the
+[M5 certification record](docs/project-status/m5.md).
 
-M1 is accepted for foundation scope. M2 has started with the
-[Domain Model](docs/contracts/domain-model.md), [ERD](docs/architecture/domain-erd.md)
-and [confirmed domain decisions](docs/contracts/m2-decisions.md).
-Models, migrations and database validation are the next M2 deliverables.
+Start with [onboarding](docs/ONBOARDING.md). M6 is now in a separate
+[RAG contract/design gate](docs/contracts/rag-contract.md), consuming the certified
+foundation. RAG implementation and AI-generated explanations are not yet delivered.
 
 ## Run the development stack
 
@@ -51,8 +50,9 @@ SMOKE_URL=http://127.0.0.1:8080 npm run test:e2e
 ```
 
 `uv.lock` and `package-lock.json` pin resolved dependencies. The API Docker image
-uses Python 3.12; local checks also support 3.14. Alembic is scaffolded for M2:
-`docker compose exec backend alembic current`. There are no domain revisions yet.
+uses Python 3.12; local checks also support 3.14. Domain and eligibility Alembic
+revisions exist. Inspect the target with `docker compose exec backend alembic current`;
+do not reset certified development data to run fresh-database tests.
 
 For host development, configure DATABASE_URL (`postgresql+psycopg`), REDIS_URL,
 QDRANT_URL and JWT_SECRET explicitly, then run `uv run uvicorn app.main:create_app
@@ -62,11 +62,12 @@ requires a reverse proxy to route health/API requests to FastAPI.
 
 ## Current boundaries
 
-JWT verification is available at `/api/v1/auth/me`; login and persisted users are
-not implemented. There is no eligibility endpoint or fabricated student data.
-M2–M5 deliver domain models, approved requirements/policies, decisions and replay.
-M6+ adds Qdrant retrieval and OpenAI integration. No institutional business defaults
-have been silently activated.
+JWT verification is available at `/api/v1/auth/me`; the eligibility endpoint is
+`POST /api/v1/eligibility/evaluate`. M2–M5 provide persistence, company/requirement
+management, policy lifecycle and deterministic decisions. Certification is scoped
+to the pinned evidence, not a claim of complete student-facing product readiness.
+M6 adds document preservation, Qdrant retrieval and verified citations through
+new interfaces. It cannot activate rules or modify M5 decisions.
 
 This is a local development deployment. Production TLS, hardened database roles,
 rate limits, backup/restore, full authorization and independent acceptance remain

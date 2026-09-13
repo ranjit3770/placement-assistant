@@ -668,10 +668,18 @@ M1  🟢 CERTIFIED / FROZEN
 M2  🟢 CERTIFIED / FROZEN
 M3  🟢 CERTIFIED / FROZEN
 M4  🟢 CERTIFIED / FROZEN
-M5  🟡 IMPLEMENTED / PENDING CERTIFICATION
+M5  🟢 CERTIFIED / FROZEN
 ```
 
-M5 (Deterministic Eligibility Engine) implementation is complete with 57/57 tests passing (21 new M5 tests + 36 M1–M4 regression tests). The M5 evidence package is in `m5_final_gate/`. Independent certification is pending.
+M5 was independently certified at commit `d75ffbb06a9479e8451a44f82af870864cbfb38b`,
+per the coordinator's supplied review. The recorded regression is 57/57 passing
+(21 M5 + 36 M1–M4). See [certification and evidence caveat](project-status/m5.md):
+the collected `test_policy_ambiguity` case has no behavioral assertion and does
+not prove the ambiguity branch. The reviewer classified this as non-blocking debt.
+
+M1–M5 are frozen. M6 is now a separate contract/design gate; start with the
+[M6 RAG contract](contracts/rag-contract.md) and [M6 plan](testing/m6-plan.md).
+Do not reopen certified milestones without a concrete regression or dependency.
 
 Do not mark a milestone `CERTIFIED` based solely on an implementation agent's statement.
 
