@@ -1,0 +1,13 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.4, pytest-9.1.1, pluggy-1.6.0 -- /home/ranjit/PROJECTS/placement-assistant/apps/api/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /home/ranjit/PROJECTS/placement-assistant/apps/api
+configfile: pyproject.toml
+plugins: anyio-4.15.1
+collecting ... collected 3 items
+
+tests/test_m4_api.py::test_document_metadata PASSED
+tests/test_m4_api.py::test_policy_creation_and_lifecycle PASSED
+tests/test_m4_api.py::test_concurrent_policy_activation PASSED
+
+============================== 3 passed in 1.63s ===============================

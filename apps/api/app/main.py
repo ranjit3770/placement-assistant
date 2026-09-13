@@ -129,9 +129,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     async def me(principal: Annotated[Principal, Depends(current_principal)]) -> Principal:
         return principal
 
-    from app.api.routers import companies, opportunities, requirements
+    from app.api.routers import companies, opportunities, requirements, policies
     app.include_router(companies.router, prefix="/api/v1")
     app.include_router(opportunities.router, prefix="/api/v1")
     app.include_router(requirements.router, prefix="/api/v1")
+    app.include_router(policies.router, prefix="/api/v1")
 
     return app
