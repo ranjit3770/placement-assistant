@@ -16,4 +16,4 @@ tests/test_m3_api.py::test_opportunity_close_idempotency PASSED
 tests/test_m3_api.py::test_requirement_transaction_rollback PASSED
 tests/test_m3_api.py::test_published_version_mutation_rejection PASSED
 
-============================== 9 passed in 1.92s ===============================
+============================== 9 passed in 2.14s ===============================

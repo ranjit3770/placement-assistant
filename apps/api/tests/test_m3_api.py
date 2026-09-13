@@ -348,7 +348,8 @@ async def test_requirement_transaction_rollback(app_client, db_session, ay):
     }
     
     res = await app_client.post(f"/api/v1/opportunities/{opp_id}/requirements", json=comp_data)
-    assert res.status_code in (400, 409, 422)  # Mapped constraint violation
+    assert res.status_code == 409
+    assert res.json()["error"]["code"] == "CONFLICT"
     
     await db_session.rollback()
     
