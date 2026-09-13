@@ -1,0 +1,78 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.4, pytest-9.1.1, pluggy-1.6.0 -- /home/ranjit/PROJECTS/placement-assistant/apps/api/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /home/ranjit/PROJECTS/placement-assistant/apps/api
+configfile: pyproject.toml
+testpaths: tests
+plugins: anyio-4.15.1
+collecting ... collected 57 items
+
+tests/test_foundation.py::test_liveness_and_error_redaction PASSED       [  1%]
+tests/test_foundation.py::test_readiness[up-up-up-200-False] PASSED      [  3%]
+tests/test_foundation.py::test_readiness[down-up-up-503-True] PASSED     [  5%]
+tests/test_foundation.py::test_readiness[up-down-down-200-True] PASSED   [  7%]
+tests/test_foundation.py::test_dependency_probes_timeout_and_hide_exceptions PASSED [  8%]
+tests/test_foundation.py::test_invalid_authentication[absent] PASSED     [ 10%]
+tests/test_foundation.py::test_invalid_authentication[malformed] PASSED  [ 12%]
+tests/test_foundation.py::test_invalid_authentication[expired] PASSED    [ 14%]
+tests/test_foundation.py::test_invalid_authentication[issuer] PASSED     [ 15%]
+tests/test_foundation.py::test_invalid_authentication[audience] PASSED   [ 17%]
+tests/test_foundation.py::test_invalid_authentication[role] PASSED       [ 19%]
+tests/test_foundation.py::test_invalid_authentication[signature] PASSED  [ 21%]
+tests/test_foundation.py::test_invalid_authentication[institution] PASSED [ 22%]
+tests/test_foundation.py::test_invalid_authentication[missing_exp] PASSED [ 24%]
+tests/test_foundation.py::test_valid_principal PASSED                    [ 26%]
+tests/test_foundation.py::test_production_docs_disabled PASSED           [ 28%]
+tests/test_foundation.py::test_configuration_rejects_short_secret PASSED [ 29%]
+tests/test_foundation.py::test_logs_have_structured_operational_fields PASSED [ 31%]
+tests/test_m2_persistence.py::test_tenant_isolation_reads PASSED         [ 33%]
+tests/test_m2_persistence.py::test_append_only_event_protection PASSED   [ 35%]
+tests/test_m2_persistence.py::test_active_definition_immutability PASSED [ 36%]
+tests/test_m2_persistence.py::test_published_requirement_immutability PASSED [ 38%]
+tests/test_m2_persistence.py::test_concurrent_dream_approval_limit PASSED [ 40%]
+tests/test_m3_api.py::test_companies_api PASSED                          [ 42%]
+tests/test_m3_api.py::test_opportunities_api PASSED                      [ 43%]
+tests/test_m3_api.py::test_requirements_api PASSED                       [ 45%]
+tests/test_m3_api.py::test_tenant_isolation PASSED                       [ 47%]
+tests/test_m3_api.py::test_company_revisions PASSED                      [ 49%]
+tests/test_m3_api.py::test_company_role_ownership PASSED                 [ 50%]
+tests/test_m3_api.py::test_opportunity_close_idempotency PASSED          [ 52%]
+tests/test_m3_api.py::test_requirement_transaction_rollback PASSED       [ 54%]
+tests/test_m3_api.py::test_published_version_mutation_rejection PASSED   [ 56%]
+tests/test_m4_api.py::test_document_metadata PASSED                      [ 57%]
+tests/test_m4_api.py::test_policy_creation_and_lifecycle PASSED          [ 59%]
+tests/test_m4_api.py::test_concurrent_policy_activation PASSED           [ 61%]
+tests/test_m4_api.py::test_concurrent_api_activation PASSED              [ 63%]
+tests/test_m5_eligibility.py::test_evaluate_rule_pass PASSED             [ 64%]
+tests/test_m5_eligibility.py::test_evaluate_rule_fail PASSED             [ 66%]
+tests/test_m5_eligibility.py::test_evaluate_rule_unknown PASSED          [ 68%]
+tests/test_m5_eligibility.py::test_aggregate_results PASSED              [ 70%]
+tests/test_m5_eligibility.py::test_evaluate_snapshot_eligible PASSED     [ 71%]
+tests/test_m5_eligibility.py::test_evaluate_snapshot_not_eligible_due_to_policy PASSED [ 73%]
+tests/test_m5_eligibility.py::test_evaluate_snapshot_not_eligible_due_to_req PASSED [ 75%]
+tests/test_m5_eligibility.py::test_evaluate_snapshot_unknown PASSED      [ 77%]
+tests/test_m5_eligibility_integration.py::test_active_policy_selection PASSED [ 78%]
+tests/test_m5_eligibility_integration.py::test_no_active_policy PASSED   [ 80%]
+tests/test_m5_eligibility_integration.py::test_policy_ambiguity PASSED   [ 82%]
+tests/test_m5_eligibility_integration.py::test_policy_activation_window PASSED [ 84%]
+tests/test_m5_eligibility_integration.py::test_policy_scope_selection PASSED [ 85%]
+tests/test_m5_eligibility_integration.py::test_snapshot_uses_authoritative_facts PASSED [ 87%]
+tests/test_m5_eligibility_integration.py::test_missing_authoritative_fact_becomes_unknown PASSED [ 89%]
+tests/test_m5_eligibility_integration.py::test_decision_immutability PASSED [ 91%]
+tests/test_m5_eligibility_integration.py::test_evaluation_idempotency PASSED [ 92%]
+tests/test_m5_eligibility_integration.py::test_changed_inputs_create_new_decision PASSED [ 94%]
+tests/test_m5_eligibility_integration.py::test_engine_evaluates_domain_criteria_with_snapshot_isolation PASSED [ 96%]
+tests/test_m5_eligibility_integration.py::test_snapshot_replay PASSED    [ 98%]
+tests/test_m5_eligibility_integration.py::test_concurrent_evaluation PASSED [100%]
+
+=============================== warnings summary ===============================
+.venv/lib/python3.14/site-packages/fastapi/testclient.py:1
+  /home/ranjit/PROJECTS/placement-assistant/apps/api/.venv/lib/python3.14/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+.venv/lib/python3.14/site-packages/starlette/testclient.py:53
+  /home/ranjit/PROJECTS/placement-assistant/apps/api/.venv/lib/python3.14/site-packages/starlette/testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 57 passed, 2 warnings in 6.22s ========================

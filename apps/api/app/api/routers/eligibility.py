@@ -18,7 +18,6 @@ async def evaluate_eligibility(
     decision = await service.evaluate(
         student_id=request.student_id,
         opportunity_id=request.opportunity_id,
-        req_version_id=request.requirement_version_id,
-        policy_version_id=request.policy_version_id
+        req_version_id=request.requirement_version_id
     )
     return decision

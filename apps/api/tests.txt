@@ -21,4 +21,4 @@ tests/test_m5_eligibility.py ........                                    [100%]
     _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-======================== 44 passed, 2 warnings in 3.81s ========================
+======================== 44 passed, 2 warnings in 3.84s ========================

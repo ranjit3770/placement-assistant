@@ -88,7 +88,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.exception_handler(HTTPException)
     async def http_error(request: Request, exc: HTTPException) -> JSONResponse:
         codes = {400: "BAD_REQUEST", 401: "UNAUTHORIZED", 403: "FORBIDDEN", 404: "NOT_FOUND", 405: "METHOD_NOT_ALLOWED", 409: "CONFLICT"}
-        response = error(request, codes.get(exc.status_code, "REQUEST_ERROR"), exc.status_code)
+        code = codes.get(exc.status_code, "REQUEST_ERROR")
+        if isinstance(exc.detail, dict) and "code" in exc.detail:
+            code = exc.detail["code"]
+        response = error(request, code, exc.status_code)
         if exc.headers:
             response.headers.update(exc.headers)
         return response

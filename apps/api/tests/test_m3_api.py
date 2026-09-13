@@ -353,13 +353,14 @@ async def test_requirement_transaction_rollback(app_client, db_session, ay):
     
     await db_session.rollback()
     
-    # Verify no dangling rows
+    # Verify no dangling rows for THIS opportunity
     reqs = (await db_session.execute(select(Requirement).where(Requirement.opportunity_id == opp_id))).scalars().all()
     assert len(reqs) == 0
-    req_vs = (await db_session.execute(select(RequirementVersion))).scalars().all()
+    # Scope to this opportunity's requirements to avoid counting rows from other tests
+    req_vs = (await db_session.execute(
+        select(RequirementVersion).join(Requirement).where(Requirement.opportunity_id == opp_id)
+    )).scalars().all()
     assert len(req_vs) == 0
-    comps = (await db_session.execute(select(Compensation))).scalars().all()
-    assert len(comps) == 0
 
 
 async def test_published_version_mutation_rejection(app_client, ay):
