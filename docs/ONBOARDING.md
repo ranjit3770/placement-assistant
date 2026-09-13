@@ -670,14 +670,32 @@ M2
 │       ↓
 ├── Independent review
 │       ↓
-├── Blocking findings
+├── Remediation
 │       ↓
-├── Remediation B01-B06
-│       ↓
-└── Pending independent re-review
+└── ACCEPTED / REMEDIATED
 ```
 
 Do not mark M2 `ACCEPTED` based solely on an implementation agent's statement.
+
+## 18.1. M3 Gate Status
+
+Current M3 state:
+
+```text
+M3
+│
+├── Initial implementation
+│       ↓
+├── Targeted Tests
+│       ↓
+├── Independent review
+│       ↓
+├── Remediation (G01, G02)
+│       ↓
+└── CERTIFIED
+```
+
+With M3 CERTIFIED, M4 (Policy Lifecycle) is currently UNLOCKED and in the planning phase.
 
 ---
 
