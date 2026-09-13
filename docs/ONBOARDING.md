@@ -668,11 +668,12 @@ M1  🟢 CERTIFIED / FROZEN
 M2  🟢 CERTIFIED / FROZEN
 M3  🟢 CERTIFIED / FROZEN
 M4  🟢 CERTIFIED / FROZEN
+M5  🟡 IMPLEMENTED / PENDING CERTIFICATION
 ```
 
-Do not mark a milestone `CERTIFIED` based solely on an implementation agent's statement.
+M5 (Deterministic Eligibility Engine) implementation is complete with 57/57 tests passing (21 new M5 tests + 36 M1–M4 regression tests). The M5 evidence package is in `m5_final_gate/`. Independent certification is pending.
 
-With M4 CERTIFIED, M5 (Deterministic Policy / Eligibility Decision) is currently UNLOCKED and in the planning/contract phase.
+Do not mark a milestone `CERTIFIED` based solely on an implementation agent's statement.
 
 ---
 
@@ -1080,7 +1081,75 @@ Do not skip gates simply because later functionality can technically be develope
 
 ---
 
-# 29. Scope Boundaries
+# 29. M5 — Deterministic Eligibility Engine
+
+M5 is the:
+
+> **Deterministic Eligibility Decision Engine**
+
+It evaluates whether a student is eligible for a placement opportunity based on two independent constraint domains:
+
+```text
+Domain 1: Opportunity Requirements
+    (CGPA, backlogs, etc.)
+         +
+Domain 2: Institutional Policy
+    (active offer limits, etc.)
+         ↓
+Deterministic Evaluation
+         ↓
+ELIGIBLE / NOT_ELIGIBLE / UNKNOWN
+         +
+Criterion-level reasons
+         +
+Immutable decision snapshot
+```
+
+### Key Components
+
+```text
+evaluator.py          Pure deterministic tri-state evaluator (no DB, no LLM)
+eligibility_service.py  Policy selection, snapshot construction, evaluation orchestration
+eligibility.py        Router: POST /api/v1/eligibility/evaluate
+```
+
+### M5 Invariants
+
+```text
+1. Policy selection: institution_id + academic_year_id + scope + activation_window + ACTIVE status
+2. 0 matches → NO_ACTIVE_POLICY (400)
+3. >1 match → POLICY_AMBIGUITY (500)
+4. Snapshot captures authoritative facts at evaluation_time (not live data)
+5. Missing/unknown facts → UNKNOWN (never silent PASS or FAIL)
+6. Decision algebra: FAIL > UNKNOWN > PASS
+7. Decisions are immutable (PL/pgSQL trigger blocks UPDATE/DELETE)
+8. Idempotency via SHA256 evaluation_key
+9. AI has zero authority over the eligibility result
+```
+
+### Snapshot Structure
+
+```text
+{
+    "student_id": "...",
+    "opportunity_id": "...",
+    "academic": {
+        "cgpa": 8.5,        ← from latest AcademicRecord where cgpa_state = KNOWN
+        "backlogs": 1       ← count of open backlogs (latest BacklogEvent.kind = OPENED)
+    },
+    "placement_history": {
+        "active_offer_count": 1  ← count of active offers (latest OfferEvent.kind in RECEIVED/ACCEPTED/TERMS_REVISED)
+    }
+}
+```
+
+### Replay Guarantee
+
+Given the same `snapshot`, `policy_rules`, and `requirement_criteria`, the pure evaluator function **must** produce the identical `result` and `reasons`. This is verified by `test_snapshot_replay`.
+
+---
+
+# 30. Scope Boundaries
 
 The platform is intentionally limited.
 
@@ -1099,7 +1168,7 @@ It is not the authority over institutional placement rules.
 
 ---
 
-# 30. Interview Preparation Is Out of Scope
+# 31. Interview Preparation Is Out of Scope
 
 Do not add:
 
@@ -1123,7 +1192,7 @@ Placement Agent Workflows
 
 ---
 
-# 31. If You Find a Problem
+# 32. If You Find a Problem
 
 Do not silently work around it.
 
@@ -1142,7 +1211,7 @@ Use this process:
 
 ---
 
-# 32. Definition of "Done"
+# 33. Definition of "Done"
 
 A feature is not done merely because:
 
@@ -1174,7 +1243,7 @@ Independent gate passed
 
 ---
 
-# 33. New Developer First-Day Checklist
+# 34. New Developer First-Day Checklist
 
 Before making your first pull request:
 
@@ -1224,7 +1293,7 @@ Before making your first pull request:
 
 ---
 
-# 34. Quick Mental Model
+# 35. Quick Mental Model
 
 If you remember only one diagram, remember this:
 
@@ -1282,7 +1351,7 @@ And the most important architectural rule is:
 
 ---
 
-# 35. Final Rule
+# 36. Final Rule
 
 When in doubt:
 
