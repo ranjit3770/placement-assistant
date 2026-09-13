@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# M2 FINAL SYNCHRONIZATION
+# M2 FINAL SYNCHRONIZATION - R10 HASHING LOGIC INCLUDED
 set -eo pipefail
 
 echo "Running M2 Backup/Restore Validation..."
