@@ -54,4 +54,4 @@ tests/test_m4_api.py::test_concurrent_api_activation PASSED              [100%]
     _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-======================== 36 passed, 2 warnings in 3.61s ========================
+======================== 36 passed, 2 warnings in 4.02s ========================

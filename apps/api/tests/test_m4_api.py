@@ -413,17 +413,31 @@ async def test_concurrent_api_activation(db_engine, inst, ay):
     assert res.status_code == 201
     policy_id = res.json()["id"]
 
+    # Create Version 1
     res = await client1.post(f"/api/v1/policies/{policy_id}/versions", json={
         "academic_year_id": str(ay.id),
         "scope": "ALL",
-        "definition": {"summary": "API Concurrency draft"}
+        "definition": {"summary": "API Concurrency draft 1"}
     }, headers=auth_headers)
-    v_id = res.json()["id"]
+    v1_id = res.json()["id"]
 
-    await client1.post(f"/api/v1/policies/versions/{v_id}/processing", json={"reason": "1"}, headers=auth_headers)
-    await client1.post(f"/api/v1/policies/versions/{v_id}/review", json={"reason": "2"}, headers=auth_headers)
-    await client1.post(f"/api/v1/policies/versions/{v_id}/approve", json={"reason": "3"}, headers=auth_headers)
-    await session1.commit() # commit the setup to the real DB so session2 can see the APPROVED version
+    await client1.post(f"/api/v1/policies/versions/{v1_id}/processing", json={"reason": "1"}, headers=auth_headers)
+    await client1.post(f"/api/v1/policies/versions/{v1_id}/review", json={"reason": "2"}, headers=auth_headers)
+    await client1.post(f"/api/v1/policies/versions/{v1_id}/approve", json={"reason": "3"}, headers=auth_headers)
+
+    # Create Version 2
+    res = await client1.post(f"/api/v1/policies/{policy_id}/versions", json={
+        "academic_year_id": str(ay.id),
+        "scope": "ALL",
+        "definition": {"summary": "API Concurrency draft 2"}
+    }, headers=auth_headers)
+    v2_id = res.json()["id"]
+
+    await client1.post(f"/api/v1/policies/versions/{v2_id}/processing", json={"reason": "1"}, headers=auth_headers)
+    await client1.post(f"/api/v1/policies/versions/{v2_id}/review", json={"reason": "2"}, headers=auth_headers)
+    await client1.post(f"/api/v1/policies/versions/{v2_id}/approve", json={"reason": "3"}, headers=auth_headers)
+
+    await session1.commit() # commit the setup to the real DB so session2 can see the APPROVED versions
 
     # Now we fire concurrent requests
     now = datetime.now(timezone.utc)
@@ -434,20 +448,14 @@ async def test_concurrent_api_activation(db_engine, inst, ay):
     }
     
     async def activate_v1():
-        try:
-            async with session1.begin():
-                res = await client1.post(f"/api/v1/policies/versions/{v_id}/activate", json=payload, headers=auth_headers)
-                return res.status_code
-        except Exception:
-            return 409
+        async with session1.begin():
+            res = await client1.post(f"/api/v1/policies/versions/{v1_id}/activate", json=payload, headers=auth_headers)
+            return ("v1", res.status_code)
 
     async def activate_v2():
-        try:
-            async with session2.begin():
-                res = await client2.post(f"/api/v1/policies/versions/{v2_id}/activate", json=payload, headers=auth_headers)
-                return res.status_code
-        except Exception:
-            return 409
+        async with session2.begin():
+            res = await client2.post(f"/api/v1/policies/versions/{v2_id}/activate", json=payload, headers=auth_headers)
+            return ("v2", res.status_code)
 
     results = await asyncio.gather(
         activate_v1(),
@@ -455,20 +463,43 @@ async def test_concurrent_api_activation(db_engine, inst, ay):
         return_exceptions=True
     )
     
-    # We expect one 201 and one exception (due to IntegrityError causing RollbackError on session exit)
     status_codes = []
+    losing_version_id = None
+
+    from sqlalchemy.exc import PendingRollbackError, IntegrityError
     for r in results:
         if isinstance(r, Exception):
-            from sqlalchemy.exc import PendingRollbackError
-            if isinstance(r, PendingRollbackError) or "PendingRollbackError" in str(r) or "IntegrityError" in str(r) or "409" in str(r):
+            if isinstance(r, (PendingRollbackError, IntegrityError)) or "PendingRollbackError" in str(r) or "IntegrityError" in str(r) or "409" in str(r):
                 status_codes.append(409)
+                # If v1 threw an exception, it lost. (Since we don't know easily from the exception which one it is, we'll determine the loser by process of elimination if possible)
             else:
                 raise r
         else:
-            status_codes.append(r)
+            ver, code = r
+            status_codes.append(code)
+            if code == 409:
+                losing_version_id = v1_id if ver == "v1" else v2_id
+            elif code == 201:
+                # The winner. Thus the OTHER one is the loser
+                losing_version_id = v2_id if ver == "v1" else v1_id
             
     assert sorted(status_codes) == [201, 409]
+    assert losing_version_id is not None
     
+    # Assert rollback state on the losing version
+    from app.infrastructure.models.policy import PolicyVersion, PolicyActivation, PolicyEvent
+    from sqlalchemy import select
+    
+    async with async_session() as check_session:
+        v_db = (await check_session.execute(select(PolicyVersion).where(PolicyVersion.id == losing_version_id))).scalar_one()
+        assert v_db.status == "APPROVED"
+        
+        activations = (await check_session.execute(select(PolicyActivation).where(PolicyActivation.policy_version_id == losing_version_id))).scalars().all()
+        assert len(activations) == 0
+
+        events = (await check_session.execute(select(PolicyEvent).where(PolicyEvent.policy_version_id == losing_version_id))).scalars().all()
+        assert not any(e.status == "ACTIVE" for e in events)
+
     await client1.aclose()
     await client2.aclose()
     await session1.close()
