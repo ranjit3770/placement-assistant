@@ -22,7 +22,7 @@ class EligibilityDecision(TenantRow):
     snapshot: Mapped[dict[str, Any]] = mapped_column(JSONB)
     reasons: Mapped[list[dict[str, Any]]] = mapped_column(JSONB)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
-    
+
     constraints = (
         scoped_fk("student_id", "students"),
         scoped_fk("opportunity_id", "placement_opportunities"),

@@ -3,14 +3,21 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, Request
 
-from app.api.schemas.recruitment import DriveCreate, DriveResponse, OpportunityCreate, OpportunityResponse
+from app.api.schemas.recruitment import (
+    DriveCreate,
+    DriveResponse,
+    OpportunityCreate,
+    OpportunityResponse,
+)
 from app.core.security import Principal, current_principal
 from app.core.services.opportunity_service import OpportunityService
 
 router = APIRouter(tags=["opportunities"])
 
 
-def get_opportunity_service(request: Request, principal: Principal = Depends(current_principal)) -> OpportunityService:
+def get_opportunity_service(
+    request: Request, principal: Principal = Depends(current_principal)
+) -> OpportunityService:
     return OpportunityService(request.state.dependencies.session, principal)
 
 
@@ -24,7 +31,9 @@ async def create_drive(
     return drive
 
 
-@router.post("/companies/{company_id}/opportunities", response_model=OpportunityResponse, status_code=201)
+@router.post(
+    "/companies/{company_id}/opportunities", response_model=OpportunityResponse, status_code=201
+)
 async def create_opportunity(
     company_id: UUID,
     data: OpportunityCreate,

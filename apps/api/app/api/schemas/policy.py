@@ -77,7 +77,9 @@ class RequirementMemberResponse(RequirementMemberCreate):
 class DocumentCreate(BaseModel):
     filename: str = Field(..., max_length=255)
     media_type: str = Field(..., max_length=80)
-    content: str  # For simulation purposes, we will hash this in the service to create the content_hash
+    content: (
+        str  # For simulation purposes, we will hash this in the service to create the content_hash
+    )
 
 
 class DocumentResponse(BaseModel):
@@ -150,4 +152,3 @@ class PolicyActivationResponse(BaseModel):
     ends_at: Optional[datetime]
 
     model_config = ConfigDict(from_attributes=True)
-

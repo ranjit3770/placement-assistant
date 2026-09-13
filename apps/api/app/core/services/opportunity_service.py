@@ -6,7 +6,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.schemas.recruitment import DriveCreate, OpportunityCreate
 from app.core.security import Principal
 from app.infrastructure.models.recruitment import CompanyRole, Drive, Opportunity
-from app.infrastructure.repositories.recruitment import CompanyRepository, CompanyRoleRepository, DriveRepository, OpportunityRepository
+from app.infrastructure.repositories.recruitment import (
+    CompanyRepository,
+    CompanyRoleRepository,
+    DriveRepository,
+    OpportunityRepository,
+)
 
 
 class OpportunityService:
@@ -31,7 +36,7 @@ class OpportunityService:
             scheduled_at=data.scheduled_at,
             status=data.status,
             source_type="SYSTEM",
-            source_reference=f"user:{self.principal.sub}"
+            source_reference=f"user:{self.principal.sub}",
         )
         self.session.add(drive)
         await self.session.flush()
@@ -47,7 +52,9 @@ class OpportunityService:
         if not role:
             raise HTTPException(status_code=404, detail="Role not found")
         if role.company_id != company.id:
-            raise HTTPException(status_code=409, detail="Role does not belong to the specified company")
+            raise HTTPException(
+                status_code=409, detail="Role does not belong to the specified company"
+            )
 
         drive = await self.drive_repo.get_by_id(data.drive_id)
         if not drive or drive.company_id != company.id:
@@ -61,7 +68,7 @@ class OpportunityService:
             deadline=data.deadline,
             status=data.status,
             source_type="SYSTEM",
-            source_reference=f"user:{self.principal.sub}"
+            source_reference=f"user:{self.principal.sub}",
         )
         self.session.add(opp)
         await self.session.flush()

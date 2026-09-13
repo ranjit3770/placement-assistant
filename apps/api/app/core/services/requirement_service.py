@@ -6,10 +6,23 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.schemas.policy import CompensationCreate, CriterionCreate, RequirementMemberCreate
 from app.core.security import Principal
-from app.infrastructure.models.policy import Criterion, Requirement, RequirementMember, RequirementVersion
+from app.infrastructure.models.policy import (
+    Criterion,
+    Requirement,
+    RequirementMember,
+    RequirementVersion,
+)
 from app.infrastructure.models.recruitment import Compensation
-from app.infrastructure.repositories.policy import CriterionRepository, RequirementMemberRepository, RequirementRepository, RequirementVersionRepository
-from app.infrastructure.repositories.recruitment import OpportunityRepository, CompensationRepository
+from app.infrastructure.repositories.policy import (
+    CriterionRepository,
+    RequirementMemberRepository,
+    RequirementRepository,
+    RequirementVersionRepository,
+)
+from app.infrastructure.repositories.recruitment import (
+    OpportunityRepository,
+    CompensationRepository,
+)
 
 
 class RequirementService:
@@ -23,7 +36,9 @@ class RequirementService:
         self.crit_repo = CriterionRepository(session, principal.institution_id)
         self.mem_repo = RequirementMemberRepository(session, principal.institution_id)
 
-    async def initialize_requirement_graph(self, opportunity_id: UUID, comp_data: CompensationCreate) -> RequirementVersion:
+    async def initialize_requirement_graph(
+        self, opportunity_id: UUID, comp_data: CompensationCreate
+    ) -> RequirementVersion:
         opp = await self.opp_repo.get_by_id(opportunity_id)
         if not opp:
             raise HTTPException(status_code=404, detail="Opportunity not found")
@@ -35,7 +50,7 @@ class RequirementService:
             .where(Requirement.opportunity_id == opportunity_id)
         )
         req_row = reqs.fetchone()
-        
+
         if req_row:
             # If it already exists, we bump the version
             requirement_id = req_row.id
@@ -54,7 +69,7 @@ class RequirementService:
                 institution_id=self.principal.institution_id,
                 opportunity_id=opp.id,
                 source_type="SYSTEM",
-                source_reference=f"user:{self.principal.sub}"
+                source_reference=f"user:{self.principal.sub}",
             )
             self.session.add(req)
             await self.session.flush()
@@ -76,7 +91,7 @@ class RequirementService:
             annual_inr=comp_data.annual_inr,
             review_reason=comp_data.review_reason,
             source_type="SYSTEM",
-            source_reference=f"user:{self.principal.sub}"
+            source_reference=f"user:{self.principal.sub}",
         )
         self.session.add(comp)
         await self.session.flush()
@@ -89,7 +104,7 @@ class RequirementService:
             version=next_version,
             effective_at=datetime.now(timezone.utc),
             source_type="SYSTEM",
-            source_reference=f"user:{self.principal.sub}"
+            source_reference=f"user:{self.principal.sub}",
         )
         self.session.add(req_v)
         await self.session.flush()
@@ -100,9 +115,11 @@ class RequirementService:
         req_v = await self.req_version_repo.get_by_id(version_id)
         if not req_v:
             raise HTTPException(status_code=404, detail="Requirement version not found")
-        
+
         if req_v.published_at is not None:
-            raise HTTPException(status_code=400, detail="Cannot modify a published requirement version")
+            raise HTTPException(
+                status_code=400, detail="Cannot modify a published requirement version"
+            )
 
         crit = Criterion(
             institution_id=self.principal.institution_id,
@@ -112,21 +129,25 @@ class RequirementService:
             operator=crit_data.operator,
             operand=crit_data.operand,
             source_type="SYSTEM",
-            source_reference=f"user:{self.principal.sub}"
+            source_reference=f"user:{self.principal.sub}",
         )
         self.session.add(crit)
         await self.session.flush()
 
         return crit
 
-    async def add_requirement_member(self, criterion_id: UUID, mem_data: RequirementMemberCreate) -> RequirementMember:
+    async def add_requirement_member(
+        self, criterion_id: UUID, mem_data: RequirementMemberCreate
+    ) -> RequirementMember:
         crit = await self.crit_repo.get_by_id(criterion_id)
         if not crit:
             raise HTTPException(status_code=404, detail="Criterion not found")
 
         req_v = await self.req_version_repo.get_by_id(crit.requirement_version_id)
         if req_v and req_v.published_at is not None:
-            raise HTTPException(status_code=400, detail="Cannot modify a published requirement version")
+            raise HTTPException(
+                status_code=400, detail="Cannot modify a published requirement version"
+            )
 
         mem = RequirementMember(
             institution_id=self.principal.institution_id,
@@ -135,7 +156,7 @@ class RequirementService:
             department_id=mem_data.department_id,
             degree_id=mem_data.degree_id,
             source_type="SYSTEM",
-            source_reference=f"user:{self.principal.sub}"
+            source_reference=f"user:{self.principal.sub}",
         )
         self.session.add(mem)
         await self.session.flush()

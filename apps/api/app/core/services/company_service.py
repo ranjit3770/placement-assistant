@@ -7,7 +7,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.schemas.recruitment import CompanyCreate, CompanyUpdate, RoleCreate
 from app.core.security import Principal
 from app.infrastructure.models.recruitment import Company, CompanyRevision, CompanyRole
-from app.infrastructure.repositories.recruitment import CompanyRepository, CompanyRevisionRepository, CompanyRoleRepository
+from app.infrastructure.repositories.recruitment import (
+    CompanyRepository,
+    CompanyRevisionRepository,
+    CompanyRoleRepository,
+)
 
 
 class CompanyService:
@@ -23,7 +27,7 @@ class CompanyService:
             institution_id=self.principal.institution_id,
             code=data.code,
             source_type="SYSTEM",
-            source_reference=f"user:{self.principal.sub}"
+            source_reference=f"user:{self.principal.sub}",
         )
         self.session.add(company)
         await self.session.flush()
@@ -35,11 +39,11 @@ class CompanyService:
             version=1,
             effective_at=datetime.now(timezone.utc),
             source_type="SYSTEM",
-            source_reference=f"user:{self.principal.sub}"
+            source_reference=f"user:{self.principal.sub}",
         )
         self.session.add(revision)
         await self.session.flush()
-        
+
         return revision
 
     async def update_company(self, company_id: UUID, data: CompanyUpdate) -> CompanyRevision:
@@ -65,7 +69,7 @@ class CompanyService:
             version=next_version,
             effective_at=datetime.now(timezone.utc),
             source_type="SYSTEM",
-            source_reference=f"user:{self.principal.sub}"
+            source_reference=f"user:{self.principal.sub}",
         )
         self.session.add(revision)
         await self.session.flush()
@@ -83,7 +87,7 @@ class CompanyService:
             code=data.code,
             title=data.title,
             source_type="SYSTEM",
-            source_reference=f"user:{self.principal.sub}"
+            source_reference=f"user:{self.principal.sub}",
         )
         self.session.add(role)
         await self.session.flush()

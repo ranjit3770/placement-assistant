@@ -56,6 +56,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             response = await call_next(request)
         except Exception as exc:
             import traceback
+
             traceback.print_exc()
             logger.error(
                 "request_failed",
@@ -87,7 +88,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @app.exception_handler(HTTPException)
     async def http_error(request: Request, exc: HTTPException) -> JSONResponse:
-        codes = {400: "BAD_REQUEST", 401: "UNAUTHORIZED", 403: "FORBIDDEN", 404: "NOT_FOUND", 405: "METHOD_NOT_ALLOWED", 409: "CONFLICT"}
+        codes = {
+            400: "BAD_REQUEST",
+            401: "UNAUTHORIZED",
+            403: "FORBIDDEN",
+            404: "NOT_FOUND",
+            405: "METHOD_NOT_ALLOWED",
+            409: "CONFLICT",
+        }
         code = codes.get(exc.status_code, "REQUEST_ERROR")
         if isinstance(exc.detail, dict) and "code" in exc.detail:
             code = exc.detail["code"]
@@ -133,6 +141,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return principal
 
     from app.api.routers import companies, opportunities, requirements, policies, eligibility
+
     app.include_router(companies.router, prefix="/api/v1")
     app.include_router(opportunities.router, prefix="/api/v1")
     app.include_router(requirements.router, prefix="/api/v1")

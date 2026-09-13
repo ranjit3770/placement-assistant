@@ -3,14 +3,22 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, Request
 
-from app.api.schemas.recruitment import CompanyCreate, CompanyResponse, CompanyUpdate, RoleCreate, RoleResponse
+from app.api.schemas.recruitment import (
+    CompanyCreate,
+    CompanyResponse,
+    CompanyUpdate,
+    RoleCreate,
+    RoleResponse,
+)
 from app.core.security import Principal, current_principal
 from app.core.services.company_service import CompanyService
 
 router = APIRouter(prefix="/companies", tags=["companies"])
 
 
-def get_company_service(request: Request, principal: Principal = Depends(current_principal)) -> CompanyService:
+def get_company_service(
+    request: Request, principal: Principal = Depends(current_principal)
+) -> CompanyService:
     return CompanyService(request.state.dependencies.session, principal)
 
 

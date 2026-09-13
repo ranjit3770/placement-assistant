@@ -3,14 +3,16 @@
 Revision ID: 110b14c4b973
 Revises: 7647b3ca528a
 """
+
 from alembic import op
 import sqlalchemy as sa
 
 
-revision = '110b14c4b973'
-down_revision = '7647b3ca528a'
+revision = "110b14c4b973"
+down_revision = "7647b3ca528a"
 branch_labels = None
 depends_on = None
+
 
 def upgrade() -> None:
     op.execute("""

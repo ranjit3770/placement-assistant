@@ -8,16 +8,29 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.api.schemas.policy import (
-    DocumentCreate, PolicyCreate, PolicyVersionCreate, PolicyRuleCreate,
-    PolicyTransitionRequest, PolicyActivationRequest
+    DocumentCreate,
+    PolicyCreate,
+    PolicyVersionCreate,
+    PolicyRuleCreate,
+    PolicyTransitionRequest,
+    PolicyActivationRequest,
 )
 from app.core.security import Principal
 from app.infrastructure.models.policy import (
-    Document, Policy, PolicyVersion, PolicyRule, PolicyEvent, PolicyActivation
+    Document,
+    Policy,
+    PolicyVersion,
+    PolicyRule,
+    PolicyEvent,
+    PolicyActivation,
 )
 from app.infrastructure.repositories.policy import (
-    DocumentRepository, PolicyRepository, PolicyVersionRepository,
-    PolicyRuleRepository, PolicyEventRepository, PolicyActivationRepository
+    DocumentRepository,
+    PolicyRepository,
+    PolicyVersionRepository,
+    PolicyRuleRepository,
+    PolicyEventRepository,
+    PolicyActivationRepository,
 )
 
 
@@ -36,10 +49,10 @@ class PolicyService:
         # Simulate document upload metadata calculation
         content_bytes = data.content.encode("utf-8")
         content_hash = hashlib.sha256(content_bytes).hexdigest()
-        
+
         # In a real system, we'd upload content_bytes to S3. Here we simulate storage key.
         storage_key = f"policies/{self.principal.institution_id}/{uuid4()}.{data.media_type.split('/')[-1] if '/' in data.media_type else 'bin'}"
-        
+
         return await self.doc_repo.create(
             filename=data.filename,
             media_type=data.media_type,
@@ -60,7 +73,9 @@ class PolicyService:
             source_reference="api_creation",
         )
 
-    async def create_policy_version(self, policy_id: UUID, data: PolicyVersionCreate) -> PolicyVersion:
+    async def create_policy_version(
+        self, policy_id: UUID, data: PolicyVersionCreate
+    ) -> PolicyVersion:
         # Check if policy exists
         if not await self.policy_repo.exists(policy_id):
             raise HTTPException(404, {"code": "NOT_FOUND", "message": "Policy not found"})
@@ -70,7 +85,7 @@ class PolicyService:
             select(PolicyVersion.version)
             .where(
                 PolicyVersion.institution_id == self.principal.institution_id,
-                PolicyVersion.policy_id == policy_id
+                PolicyVersion.policy_id == policy_id,
             )
             .order_by(PolicyVersion.version.desc())
             .limit(1)
@@ -102,10 +117,18 @@ class PolicyService:
 
         # Enforce immutability
         if version.status in ("APPROVED", "ACTIVE", "ARCHIVED"):
-            raise HTTPException(400, {"code": "INVALID_OPERATION", "message": f"Cannot modify rule in {version.status} state"})
+            raise HTTPException(
+                400,
+                {
+                    "code": "INVALID_OPERATION",
+                    "message": f"Cannot modify rule in {version.status} state",
+                },
+            )
         # REVIEW is frozen in M4 context unless specific controlled endpoints exist
         if version.status == "REVIEW":
-            raise HTTPException(400, {"code": "INVALID_OPERATION", "message": "Cannot modify rule in REVIEW state"})
+            raise HTTPException(
+                400, {"code": "INVALID_OPERATION", "message": "Cannot modify rule in REVIEW state"}
+            )
 
         return await self.rule_repo.create(
             policy_version_id=version_id,
@@ -116,7 +139,9 @@ class PolicyService:
             source_reference="api_creation",
         )
 
-    async def transition_status(self, version_id: UUID, req: PolicyTransitionRequest, target_status: str) -> PolicyVersion:
+    async def transition_status(
+        self, version_id: UUID, req: PolicyTransitionRequest, target_status: str
+    ) -> PolicyVersion:
         version = await self.version_repo.get_by_id(version_id)
         if not version:
             raise HTTPException(404, {"code": "NOT_FOUND"})
@@ -131,11 +156,26 @@ class PolicyService:
 
         allowed_targets = valid_transitions.get(version.status, [])
         if target_status not in allowed_targets:
-            raise HTTPException(400, {"code": "INVALID_OPERATION", "message": f"Cannot transition from {version.status} to {target_status}"})
+            raise HTTPException(
+                400,
+                {
+                    "code": "INVALID_OPERATION",
+                    "message": f"Cannot transition from {version.status} to {target_status}",
+                },
+            )
 
         # Check authorization for APPROVE and ACTIVATE
-        if target_status in ("APPROVED", "ACTIVE") and self.principal.role not in ("COORDINATOR", "ADMIN"):
-            raise HTTPException(403, {"code": "FORBIDDEN", "message": f"Not authorized to transition to {target_status}"})
+        if target_status in ("APPROVED", "ACTIVE") and self.principal.role not in (
+            "COORDINATOR",
+            "ADMIN",
+        ):
+            raise HTTPException(
+                403,
+                {
+                    "code": "FORBIDDEN",
+                    "message": f"Not authorized to transition to {target_status}",
+                },
+            )
 
         from_status = version.status
         version = await self.version_repo.transition_lifecycle(version, target_status)
@@ -145,9 +185,11 @@ class PolicyService:
     async def approve_policy(self, version_id: UUID, req: PolicyTransitionRequest) -> PolicyVersion:
         return await self.transition_status(version_id, req, "APPROVED")
 
-    async def activate_policy(self, version_id: UUID, req: PolicyActivationRequest) -> PolicyActivation:
+    async def activate_policy(
+        self, version_id: UUID, req: PolicyActivationRequest
+    ) -> PolicyActivation:
         version = await self.transition_status(version_id, req, "ACTIVE")
-        
+
         activation = await self.activation_repo.create(
             policy_version_id=version_id,
             academic_year_id=version.academic_year_id,
@@ -166,11 +208,10 @@ class PolicyService:
 
         # Close the active activation record
         result = await self.session.execute(
-            select(PolicyActivation)
-            .where(
+            select(PolicyActivation).where(
                 PolicyActivation.institution_id == self.principal.institution_id,
                 PolicyActivation.policy_version_id == version_id,
-                PolicyActivation.ends_at.is_(None)
+                PolicyActivation.ends_at.is_(None),
             )
         )
         activation = result.scalar_one_or_none()
@@ -184,13 +225,13 @@ class PolicyService:
             select(PolicyEvent.version)
             .where(
                 PolicyEvent.institution_id == self.principal.institution_id,
-                PolicyEvent.policy_version_id == version_id
+                PolicyEvent.policy_version_id == version_id,
             )
             .order_by(PolicyEvent.version.desc())
             .limit(1)
         )
         latest_event_version = result.scalar_one_or_none() or 0
-        
+
         await self.event_repo.append(
             policy_version_id=version_id,
             version=latest_event_version + 1,

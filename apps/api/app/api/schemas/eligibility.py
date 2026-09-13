@@ -3,10 +3,12 @@ from typing import Any
 from uuid import UUID
 from pydantic import BaseModel, ConfigDict
 
+
 class EligibilityRequest(BaseModel):
     student_id: UUID
     opportunity_id: UUID
     requirement_version_id: UUID
+
 
 class EligibilityDecisionResponse(BaseModel):
     id: UUID
@@ -20,5 +22,5 @@ class EligibilityDecisionResponse(BaseModel):
     snapshot: dict[str, Any]
     reasons: list[dict[str, Any]]
     created_at: datetime
-    
+
     model_config = ConfigDict(from_attributes=True)

@@ -10,6 +10,7 @@ from app.infrastructure.models.common import TenantRow
 
 ModelType = TypeVar("ModelType", bound=TenantRow)
 
+
 # M2 FINAL SYNCHRONIZATION
 class BaseRepository(Generic[ModelType]):
     def __init__(self, session: AsyncSession, model: type[ModelType], institution_id: UUID):
@@ -33,13 +34,12 @@ class BaseRepository(Generic[ModelType]):
             .limit(limit)
         )
         return result.scalars().all()
-    
+
     async def exists(self, id: UUID) -> bool:
         result = await self.session.execute(
             select(
                 exists().where(
-                    self.model.institution_id == self.institution_id,
-                    self.model.id == id
+                    self.model.institution_id == self.institution_id, self.model.id == id
                 )
             )
         )
@@ -56,11 +56,13 @@ class MutableRepository(BaseRepository[ModelType]):
 
     async def update(self, instance: ModelType, **kwargs: Any) -> ModelType:
         if instance.institution_id != self.institution_id:
-            raise ValueError("Tenant isolation violation: cannot update instance from another institution")
-        
+            raise ValueError(
+                "Tenant isolation violation: cannot update instance from another institution"
+            )
+
         # Don't allow updating institution_id
         kwargs.pop("institution_id", None)
-        
+
         for key, value in kwargs.items():
             setattr(instance, key, value)
         await self.session.flush()
@@ -68,7 +70,9 @@ class MutableRepository(BaseRepository[ModelType]):
 
     async def delete(self, instance: ModelType) -> None:
         if instance.institution_id != self.institution_id:
-            raise ValueError("Tenant isolation violation: cannot delete instance from another institution")
+            raise ValueError(
+                "Tenant isolation violation: cannot delete instance from another institution"
+            )
         await self.session.delete(instance)
         await self.session.flush()
 
