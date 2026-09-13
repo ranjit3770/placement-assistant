@@ -12,8 +12,8 @@ from app.core.engine.evaluator import evaluate_snapshot
 from app.core.security import Principal
 from app.infrastructure.models.eligibility import EligibilityDecision
 from app.infrastructure.models.students import Student, AcademicRecord
-from app.infrastructure.models.policy import PolicyVersion, PolicyRule, PolicyActivation
-from app.infrastructure.models.recruitment import RequirementVersion, Criterion, Opportunity
+from app.infrastructure.models.policy import PolicyVersion, PolicyRule, PolicyActivation, RequirementVersion, Criterion
+from app.infrastructure.models.recruitment import Opportunity
 
 class EligibilityService:
     def __init__(self, session: AsyncSession, principal: Principal):
