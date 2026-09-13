@@ -3,7 +3,7 @@
 Revision ID: be3b6aafad0b
 Revises: 554daca0e585
 """
-# M2 FINAL SYNCHRONIZATION
+# M2 FINAL SYNCHRONIZATION - R7 R8 INCLUDED
 from alembic import op
 import sqlalchemy as sa
 
