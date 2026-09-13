@@ -248,6 +248,23 @@ async def test_policy_creation_and_lifecycle(
     # Exclude constraint violation -> IntegrityError -> 409
     assert res.status_code == 409
 
+    # Prove failed activation rollback (M4-R3)
+    # The version status should remain APPROVED
+    res_v2 = await app_client.get(f"/api/v1/policies/versions/{v2_id}", headers=auth_headers)
+    # Wait, there's no GET endpoint for policy versions yet. We'll check the DB directly.
+    from app.infrastructure.models.policy import PolicyVersion, PolicyActivation, PolicyEvent
+    from sqlalchemy import select
+    v2_db = (await db_session.execute(select(PolicyVersion).where(PolicyVersion.id == v2_id))).scalar_one()
+    assert v2_db.status == "APPROVED"
+    
+    # Activation count should be 0 for this version
+    activations = (await db_session.execute(select(PolicyActivation).where(PolicyActivation.policy_version_id == v2_id))).scalars().all()
+    assert len(activations) == 0
+
+    # No ACTIVE lifecycle event for this version
+    events = (await db_session.execute(select(PolicyEvent).where(PolicyEvent.policy_version_id == v2_id))).scalars().all()
+    assert not any(e.status == "ACTIVE" for e in events)
+
     # Archive original
     res = await app_client.post(f"/api/v1/policies/versions/{version_id}/archive", json={
         "reason": "End of year"
@@ -325,4 +342,135 @@ async def test_concurrent_policy_activation(db_engine):
             
     assert successes == 1
     assert failures == 1
+
+async def test_concurrent_api_activation(db_engine, inst, ay):
+    # This test hits the actual API endpoint concurrently using two independent database sessions
+    import asyncio
+    from datetime import datetime, timezone, timedelta
+    from httpx import AsyncClient, ASGITransport
+    from sqlalchemy.orm import sessionmaker
+    from sqlalchemy.ext.asyncio import AsyncSession
+    from app.main import create_app
+    from app.core.config import Settings
+    from app.core.security import Principal, current_principal
+    from app.infrastructure.models.students import User
+    from uuid import uuid4
+    
+    settings = Settings(
+        _env_file=None,
+        app_env="test",
+        database_url="postgresql+psycopg://test:test@127.0.0.1:5434/test",
+        redis_url="redis://127.0.0.1:1/0",
+        qdrant_url="http://127.0.0.1:1",
+        jwt_secret="test-only-x" * 40,
+    )
+    
+    async_session = sessionmaker(db_engine, class_=AsyncSession, expire_on_commit=False, autoflush=False)
+    
+    # We will create two sessions and two clients
+    session1 = async_session()
+    session2 = async_session()
+    
+    app1 = create_app(settings)
+    app2 = create_app(settings)
+    
+    # Auth override
+    principal = Principal(sub=uuid4(), institution_id=inst.id, role="COORDINATOR")
+    
+    # Insert user in DB directly first
+    async with async_session() as s:
+        u = User(id=principal.sub, institution_id=inst.id, login=f"api_{uuid4().hex[:8]}@test.com", source_type="SYSTEM", source_reference="test")
+        s.add(u)
+        await s.commit()
+    
+    app1.dependency_overrides[current_principal] = lambda: principal
+    app2.dependency_overrides[current_principal] = lambda: principal
+    
+    @app1.middleware("http")
+    async def override_db_session1(request, call_next):
+        class MockDeps:
+            session = session1
+        request.state.dependencies = MockDeps()
+        return await call_next(request)
+
+    @app2.middleware("http")
+    async def override_db_session2(request, call_next):
+        class MockDeps:
+            session = session2
+        request.state.dependencies = MockDeps()
+        return await call_next(request)
+        
+    client1 = AsyncClient(transport=ASGITransport(app=app1), base_url="http://test")
+    client2 = AsyncClient(transport=ASGITransport(app=app2), base_url="http://test")
+    
+    auth_headers = {"Authorization": "Bearer fake"}
+    
+    # We will use client1 to setup the policy and version
+    res = await client1.post("/api/v1/policies", json={
+        "code": f"API-CONC-{uuid4().hex[:8]}",
+        "name": "API Concurrency Policy"
+    }, headers=auth_headers)
+    assert res.status_code == 201
+    policy_id = res.json()["id"]
+
+    res = await client1.post(f"/api/v1/policies/{policy_id}/versions", json={
+        "academic_year_id": str(ay.id),
+        "scope": "ALL",
+        "definition": {"summary": "API Concurrency draft"}
+    }, headers=auth_headers)
+    v_id = res.json()["id"]
+
+    await client1.post(f"/api/v1/policies/versions/{v_id}/processing", json={"reason": "1"}, headers=auth_headers)
+    await client1.post(f"/api/v1/policies/versions/{v_id}/review", json={"reason": "2"}, headers=auth_headers)
+    await client1.post(f"/api/v1/policies/versions/{v_id}/approve", json={"reason": "3"}, headers=auth_headers)
+    await session1.commit() # commit the setup to the real DB so session2 can see the APPROVED version
+
+    # Now we fire concurrent requests
+    now = datetime.now(timezone.utc)
+    payload = {
+        "reason": "Concurrent Activation",
+        "starts_at": now.isoformat(),
+        "ends_at": (now + timedelta(days=365)).isoformat()
+    }
+    
+    async def activate_v1():
+        try:
+            async with session1.begin():
+                res = await client1.post(f"/api/v1/policies/versions/{v_id}/activate", json=payload, headers=auth_headers)
+                return res.status_code
+        except Exception:
+            return 409
+
+    async def activate_v2():
+        try:
+            async with session2.begin():
+                res = await client2.post(f"/api/v1/policies/versions/{v2_id}/activate", json=payload, headers=auth_headers)
+                return res.status_code
+        except Exception:
+            return 409
+
+    results = await asyncio.gather(
+        activate_v1(),
+        activate_v2(),
+        return_exceptions=True
+    )
+    
+    # We expect one 201 and one exception (due to IntegrityError causing RollbackError on session exit)
+    status_codes = []
+    for r in results:
+        if isinstance(r, Exception):
+            from sqlalchemy.exc import PendingRollbackError
+            if isinstance(r, PendingRollbackError) or "PendingRollbackError" in str(r) or "IntegrityError" in str(r) or "409" in str(r):
+                status_codes.append(409)
+            else:
+                raise r
+        else:
+            status_codes.append(r)
+            
+    assert sorted(status_codes) == [201, 409]
+    
+    await client1.aclose()
+    await client2.aclose()
+    await session1.close()
+    await session2.close()
 

@@ -9,7 +9,7 @@
 | **State Machine** | `transition_status` enforces `DRAFT -> PROCESSING -> REVIEW -> APPROVED -> ACTIVE -> ARCHIVED` | 🟢 PASS |
 | **Immutability** | `add_policy_rule` blocks mutations when `status in ("APPROVED", "ACTIVE", "ARCHIVED", "REVIEW")` | 🟢 PASS |
 | **Authorization** | `approve_policy` and `activate_policy` enforce `COORDINATOR` or `ADMIN` roles | 🟢 PASS |
-| **Provenance** | Every event creates a `PolicyEvent` capturing `from_status`, `to_status`, `actor_id` (`users` FK), etc. | 🟢 PASS |
+| **Provenance** | Every event creates a `PolicyEvent` capturing target `status`, `actor_id` (FK), and `reason` containing the `FROM -> TO` transition. | 🟢 PASS |
 | **Activation Overlap** | Handled by `ex_policy_activation_overlap` DB constraint, returns 409 | 🟢 PASS |
 | **Atomicity** | `activate_policy` executed in same transaction | 🟢 PASS |
 | **Archive Reconcile** | Archiving a policy closes its active `PolicyActivation` by setting `ends_at` | 🟢 PASS |

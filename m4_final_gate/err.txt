@@ -1,0 +1,159 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.4, pytest-9.1.1, pluggy-1.6.0 -- /home/ranjit/PROJECTS/placement-assistant/apps/api/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /home/ranjit/PROJECTS/placement-assistant/apps/api
+configfile: pyproject.toml
+plugins: anyio-4.15.1
+collecting ... collected 1 item
+
+tests/test_m4_api.py::test_concurrent_api_activation {"timestamp": "2026-09-13T06:09:34.726779+00:00", "service": "api", "level": "INFO", "event": "request", "request_id": "8c9a15c3-683b-4225-a7cf-9b7164ccf0bf", "trace_id": "8c9a15c3-683b-4225-a7cf-9b7164ccf0bf", "method": "POST", "route": "/policies", "status": 201, "latency_ms": 48.74}
+{"timestamp": "2026-09-13T06:09:34.762650+00:00", "service": "api", "level": "INFO", "event": "request", "request_id": "eaf6661e-f5a9-4c61-b21d-7724b8e08541", "trace_id": "eaf6661e-f5a9-4c61-b21d-7724b8e08541", "method": "POST", "route": "/policies/{policy_id}/versions", "status": 201, "latency_ms": 33.26}
+{"timestamp": "2026-09-13T06:09:34.785265+00:00", "service": "api", "level": "INFO", "event": "request", "request_id": "26367731-caa3-48d2-80b6-c0b63dd9756d", "trace_id": "26367731-caa3-48d2-80b6-c0b63dd9756d", "method": "POST", "route": "/policies/versions/{version_id}/processing", "status": 200, "latency_ms": 20.15}
+{"timestamp": "2026-09-13T06:09:34.797957+00:00", "service": "api", "level": "INFO", "event": "request", "request_id": "aff3bad1-74eb-40ae-bf4e-b8fd312fda6b", "trace_id": "aff3bad1-74eb-40ae-bf4e-b8fd312fda6b", "method": "POST", "route": "/policies/versions/{version_id}/review", "status": 200, "latency_ms": 10.52}
+{"timestamp": "2026-09-13T06:09:34.809626+00:00", "service": "api", "level": "INFO", "event": "request", "request_id": "7616554a-5233-4d14-a5ed-e34d219ef0ca", "trace_id": "7616554a-5233-4d14-a5ed-e34d219ef0ca", "method": "POST", "route": "/policies/versions/{version_id}/approve", "status": 200, "latency_ms": 10.01}
+{"timestamp": "2026-09-13T06:09:34.832741+00:00", "service": "api", "level": "INFO", "event": "request", "request_id": "00cdd000-f637-4470-91fa-46ccd610af6f", "trace_id": "00cdd000-f637-4470-91fa-46ccd610af6f", "method": "POST", "route": "/policies/versions/{version_id}/activate", "status": 201, "latency_ms": 19.21}
+FAILED
+
+=================================== FAILURES ===================================
+________________________ test_concurrent_api_activation ________________________
+
+db_engine = <sqlalchemy.ext.asyncio.engine.AsyncEngine object at 0x75b9bbb88650>
+inst = <app.infrastructure.models.students.Institution object at 0x75b9bab970e0>
+ay = <app.infrastructure.models.students.AcademicYear object at 0x75b9ba768d70>
+
+    async def test_concurrent_api_activation(db_engine, inst, ay):
+        # This test hits the actual API endpoint concurrently using two independent database sessions
+        import asyncio
+        from datetime import datetime, timezone, timedelta
+        from httpx import AsyncClient, ASGITransport
+        from sqlalchemy.orm import sessionmaker
+        from sqlalchemy.ext.asyncio import AsyncSession
+        from app.main import create_app
+        from app.core.config import Settings
+        from app.core.security import Principal, current_principal
+        from app.infrastructure.models.students import User
+        from uuid import uuid4
+    
+        settings = Settings(
+            _env_file=None,
+            app_env="test",
+            database_url="postgresql+psycopg://test:test@127.0.0.1:5434/test",
+            redis_url="redis://127.0.0.1:1/0",
+            qdrant_url="http://127.0.0.1:1",
+            jwt_secret="test-only-x" * 40,
+        )
+    
+        async_session = sessionmaker(db_engine, class_=AsyncSession, expire_on_commit=False, autoflush=False)
+    
+        # We will create two sessions and two clients
+        session1 = async_session()
+        session2 = async_session()
+    
+        app1 = create_app(settings)
+        app2 = create_app(settings)
+    
+        # Auth override
+        principal = Principal(sub=uuid4(), institution_id=inst.id, role="COORDINATOR")
+    
+        # Insert user in DB directly first
+        async with async_session() as s:
+            u = User(id=principal.sub, institution_id=inst.id, login=f"api_{uuid4().hex[:8]}@test.com", source_type="SYSTEM", source_reference="test")
+            s.add(u)
+            await s.commit()
+    
+        app1.dependency_overrides[current_principal] = lambda: principal
+        app2.dependency_overrides[current_principal] = lambda: principal
+    
+        @app1.middleware("http")
+        async def override_db_session1(request, call_next):
+            class MockDeps:
+                session = session1
+            request.state.dependencies = MockDeps()
+            return await call_next(request)
+    
+        @app2.middleware("http")
+        async def override_db_session2(request, call_next):
+            class MockDeps:
+                session = session2
+            request.state.dependencies = MockDeps()
+            return await call_next(request)
+    
+        client1 = AsyncClient(transport=ASGITransport(app=app1), base_url="http://test")
+        client2 = AsyncClient(transport=ASGITransport(app=app2), base_url="http://test")
+    
+        auth_headers = {"Authorization": "Bearer fake"}
+    
+        # We will use client1 to setup the policy and version
+        res = await client1.post("/api/v1/policies", json={
+            "code": f"API-CONC-{uuid4().hex[:8]}",
+            "name": "API Concurrency Policy"
+        }, headers=auth_headers)
+        assert res.status_code == 201
+        policy_id = res.json()["id"]
+    
+        res = await client1.post(f"/api/v1/policies/{policy_id}/versions", json={
+            "academic_year_id": str(ay.id),
+            "scope": "ALL",
+            "definition": {"summary": "API Concurrency draft"}
+        }, headers=auth_headers)
+        v_id = res.json()["id"]
+    
+        await client1.post(f"/api/v1/policies/versions/{v_id}/processing", json={"reason": "1"}, headers=auth_headers)
+        await client1.post(f"/api/v1/policies/versions/{v_id}/review", json={"reason": "2"}, headers=auth_headers)
+        await client1.post(f"/api/v1/policies/versions/{v_id}/approve", json={"reason": "3"}, headers=auth_headers)
+        await session1.commit() # commit the setup to the real DB so session2 can see the APPROVED version
+    
+        # Now we fire concurrent requests
+        now = datetime.now(timezone.utc)
+        payload = {
+            "reason": "Concurrent Activation",
+            "starts_at": now.isoformat(),
+            "ends_at": (now + timedelta(days=365)).isoformat()
+        }
+    
+        async def activate_v1():
+            res_status = None
+            try:
+                async with session1.begin():
+                    res = await client1.post(f"/api/v1/policies/versions/{v_id}/activate", json=payload, headers=auth_headers)
+                    res_status = res.status_code
+            except Exception:
+                pass
+            return res_status
+    
+        async def activate_v2():
+            res_status = None
+            try:
+                async with session2.begin():
+                    res = await client2.post(f"/api/v1/policies/versions/{v2_id}/activate", json=payload, headers=auth_headers)
+                    res_status = res.status_code
+            except Exception:
+                pass
+            return res_status
+    
+        results = await asyncio.gather(
+            activate_v1(),
+            activate_v2(),
+            return_exceptions=True
+        )
+    
+        # We expect one 201 and one exception (due to IntegrityError causing RollbackError on session exit)
+        status_codes = []
+        for r in results:
+            if isinstance(r, Exception):
+                from sqlalchemy.exc import PendingRollbackError
+                if isinstance(r, PendingRollbackError) or "PendingRollbackError" in str(r) or "IntegrityError" in str(r) or "409" in str(r):
+                    status_codes.append(409)
+                else:
+                    raise r
+            else:
+                status_codes.append(r)
+    
+>       assert sorted(status_codes) == [201, 409]
+               ^^^^^^^^^^^^^^^^^^^^
+E       TypeError: '<' not supported between instances of 'NoneType' and 'int'
+
+tests/test_m4_api.py:474: TypeError
+=========================== short test summary info ============================
+FAILED tests/test_m4_api.py::test_concurrent_api_activation - TypeError: '<' ...
+============================== 1 failed in 1.37s ===============================

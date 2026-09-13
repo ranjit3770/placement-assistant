@@ -158,6 +158,7 @@ class PolicyService:
             source_type="SYSTEM",
             source_reference="api_activation",
         )
+        await self.session.flush()
         return activation
 
     async def archive_policy(self, version_id: UUID, req: PolicyTransitionRequest) -> PolicyVersion:
