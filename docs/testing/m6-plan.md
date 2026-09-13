@@ -1,7 +1,7 @@
 # M6 design and verification gate
 
-Date: 2026-09-13. Status: DESIGN_DRAFT, independent contract review pending.
-Implementation has not started. [Contract](../contracts/rag-contract.md).
+Date: 2026-09-13. Status: DESIGN_APPROVED; implementation in progress.
+Five independent-review clarifications incorporated in [contract v0.2](../contracts/rag-contract.md).
 Certified baseline: [M5 commit and caveat](../project-status/m5.md).
 
 ## Traceable acceptance cases
@@ -54,6 +54,12 @@ Proposed thresholds for review:
 - 100% specified abstention/error cases handled without unsupported evidence.
 - No changed M5 decision, snapshot or evaluation key caused by an M6 operation.
 
+Citation integrity and retrieval relevance are independently scored gates. A valid
+but irrelevant chunk can pass provenance validation but contributes zero relevant
+hits to Recall@5. Neither metric substitutes for the other. Binding tests must
+exercise forbidden reapproval and immutable event history; publication tests must
+exercise wrong counts/manifests/hashes/dimensions and exact published-ID filtering.
+
 Report Precision@5 and latency distributions too; do not hide retrieval failures
 inside the aggregate. Initial latency target is retrieval p95 < 3s on a documented
 warm-index workload. Dataset size, concurrency, token volume, machine/resources,
@@ -67,5 +73,5 @@ fixtures/labels/hashes, security/negative results, recovery comparison and depen
 versions. Preserve original M5 evidence unchanged; reference its no-op ambiguity case
 without claiming that it proves defensive handling.
 
-This design-only turn did not rerun the 57-test suite, migrate a database, upload
-source documents, call an embedding API, create Qdrant collections or certify M6.
+Implementation evidence is recorded separately in the M6 status document. No M6
+certification is implied by contract approval or by passing isolated unit tests.

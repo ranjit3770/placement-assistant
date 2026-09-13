@@ -677,8 +677,10 @@ per the coordinator's supplied review. The recorded regression is 57/57 passing
 the collected `test_policy_ambiguity` case has no behavioral assertion and does
 not prove the ambiguity branch. The reviewer classified this as non-blocking debt.
 
-M1–M5 are frozen. M6 is now a separate contract/design gate; start with the
+M1–M5 are frozen. M6 design is approved and implementation is in progress; start with the
 [M6 RAG contract](contracts/rag-contract.md) and [M6 plan](testing/m6-plan.md).
+The [M6 status record](project-status/m6.md) separates the implemented source-storage
+increment from the remaining ingestion/retrieval and certification gates.
 Do not reopen certified milestones without a concrete regression or dependency.
 
 Do not mark a milestone `CERTIFIED` based solely on an implementation agent's statement.

@@ -4,9 +4,11 @@ M1–M5 are certified and frozen. M5 provides deterministic eligibility, immutab
 decisions and snapshot replay; its certified commit and evidence caveat are in the
 [M5 certification record](docs/project-status/m5.md).
 
-Start with [onboarding](docs/ONBOARDING.md). M6 is now in a separate
-[RAG contract/design gate](docs/contracts/rag-contract.md), consuming the certified
-foundation. RAG implementation and AI-generated explanations are not yet delivered.
+Start with [onboarding](docs/ONBOARDING.md). M6's independent design review approved
+implementation, with five clarifications incorporated in the
+[RAG contract](docs/contracts/rag-contract.md). The verified-source foundation is
+implemented; ingestion/retrieval and AI-generated explanations are not yet delivered.
+See [M6 progress and verification](docs/project-status/m6.md).
 
 ## Run the development stack
 

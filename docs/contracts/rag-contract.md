@@ -1,6 +1,8 @@
-# M6 contract draft — Policy RAG and verified evidence
+# M6 contract — Policy RAG and verified evidence
 
-Version: 0.1, 2026-09-13. Status: DRAFT / independent design review pending.
+Version: 0.2, 2026-09-13. Status: DESIGN APPROVED WITH CONDITIONS INCORPORATED.
+Independent review baseline: `3a30b94c36f8eaa4ad28f0b0674f1d4149330592`.
+Implementation is unlocked; this is not implementation certification.
 Baseline: [certified M5](../project-status/m5.md), SRS §§17–23, 47–49, 65–68,
 74–76, 88 and roadmap M6. Proposed defaults below are reviewable M6 choices,
 not already implemented functionality or activated institutional policy.
@@ -39,6 +41,13 @@ reviewer, time, source hash, policy version and any historical source verificati
 Attaching late evidence to a historical decision must be labeled as later retrieval,
 not as evidence captured in the original certified decision.
 
+Binding revisions are immutable identities with append-only lifecycle events.
+The only transitions are `PROPOSED -> APPROVED -> REVOKED`. Approval records the
+authorized reviewer, timestamp and exact source hash. Revocation does not erase
+approval provenance. `REVOKED -> APPROVED` is forbidden: reapproval requires a new
+proposed revision and fresh review. Concurrent transitions must serialize on the
+binding identity; retries cannot append conflicting events.
+
 ## 3. Additive persistence model
 
 Proposed new tables, using the existing tenant/provenance conventions:
@@ -58,6 +67,17 @@ must correspond to a hashed normalized artifact. A new parser/chunker/embedding
 configuration creates a new generation; never silently changes historical evidence.
 Database writes and job creation are transactional. Object and vector writes are
 external operations with reconciliation; no claim of a distributed SQL transaction.
+
+Hash definitions are distinct and mandatory:
+
+- `source_hash = SHA256(original uploaded bytes) = Document.content_hash`.
+- `normalized_artifact_hash = SHA256(exact normalized UTF-8 extraction artifact)`.
+- `chunk_hash = SHA256(canonical chunk representation)`.
+
+Canonical chunk representation uses UTF-8 JSON with sorted keys, no insignificant
+whitespace, no ASCII escaping, and no NaN. It includes schema version, exact text,
+source/artifact hashes, ordinal and locator. Locator offsets are Unicode code-point
+indices into the normalized artifact. Normalization never changes the M4 hash.
 
 ## 4. Ingestion contract
 
@@ -91,6 +111,16 @@ pipeline/embedding versions. Duplicate same-key requests return the same run.
 Chunk/point IDs derive deterministically from that manifest and ordinal. Retry can
 upsert the same points safely. Partially indexed generations are never visible.
 Old valid generations remain readable until a new complete one is published.
+
+Reader-atomic publication requires all of: expected chunk count equals indexed
+count, expected point manifest equals actual point manifest (including hashes),
+source/artifact/chunk hashes validate, and every vector has the configured finite
+dimensions. Only then may a transaction mark the generation `PUBLISHED` and change
+the binding's `published_generation_id`. Readers select and filter that exact ID,
+never the newest run or a partially written generation. Cancellation/revocation
+must be rechecked in the publication transaction. Qdrant payload is not authority;
+independent PostgreSQL approval, nonrevocation and applicability checks are a
+certification blocker, even when the vector query included all required filters.
 
 Use bounded exponential backoff with jitter, at most three transient retries;
 validation/authorization failures are not retried. Proposed limits: parser 60s,
@@ -132,6 +162,11 @@ treat higher similarity as greater policy authority.
 Interfaces: DocumentStore, DocumentParser, Normalizer, Chunker, EmbeddingProvider,
 VectorIndex and EvidenceRepository. Each has typed input/output, bounded operations
 and stable failure categories. Keep SDK types out of service/domain contracts.
+
+`EmbeddingProvider` is provider-agnostic: local, OpenAI and future implementations
+use the same interface. Domain logic cannot branch on provider identity. Every
+generation persists provider, model, dimensions, tokenizer, distance metric and
+pipeline version; the complete configuration defines its embedding-space identity.
 
 Embedding configuration includes provider, model identifier, dimensions, tokenizer,
 pipeline version and distance metric. Do not mix incompatible spaces in one query.
