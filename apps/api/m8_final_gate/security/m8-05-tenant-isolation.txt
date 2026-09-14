@@ -1,5 +1,5 @@
 Evidence for M8-05 and M8-06:
-Tenant isolation is enforced strictly at the database query level in `ConversationMemory.get_or_create_session()`. The `institution_id` and `student_id` extracted from the server-owned `Principal` JWT claims are used to fetch the session.
+Tenant isolation is enforced strictly at the database query level in \`ConversationMemory.get_or_create_session()\`. The \`institution_id\` and \`student_id\` extracted from the server-owned \`Principal\` JWT claims are used to fetch the session.
 Verified by:
-- `tests/test_m8_authorization.py::test_m8_05_tenant_isolation_boundary`
-- `tests/test_m8_authorization.py::test_m8_06_student_isolation_boundary`
+- \`tests/test_m8_authorization.py::test_m8_05_tenant_isolation_boundary\`
+- \`tests/test_m8_authorization.py::test_m8_06_student_isolation_boundary\`

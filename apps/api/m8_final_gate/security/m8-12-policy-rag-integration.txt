@@ -1,5 +1,5 @@
 Evidence for M8-12:
-Policy retrieval maps the agent's query to the M6 `RetrievalService`.
+Policy retrieval maps the agent's query to the M6 \`RetrievalService\`.
 Verified by:
-- Valid retrieval yielding `VerifiedEvidence` properties (chunk hashes, document metadata): `tests/test_m8_m6_integration.py::test_m8_12_m6_real_retrieval_certified`
-- Missing state gracefully yielding abstention without model fabrication: `tests/test_m8_m6_integration.py::test_m8_m6_integration_abstention`
+- Valid retrieval yielding \`VerifiedEvidence\` properties (chunk hashes, document metadata): \`tests/test_m8_m6_integration.py::test_m8_12_m6_real_retrieval_certified\`
+- Missing state gracefully yielding abstention without model fabrication: \`tests/test_m8_m6_integration.py::test_m8_m6_integration_abstention\`

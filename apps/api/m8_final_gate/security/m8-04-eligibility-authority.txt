@@ -1,6 +1,6 @@
 Evidence for M8-04 and M8-07:
-The application uses deterministic services (`M5_ENGINE`) to verify the eligibility state. The `AgentResponse` enforces that the decision returned is either `ELIGIBLE`, `NOT_ELIGIBLE`, or `UNKNOWN`.
-Verified by `tests/test_m8_authority_remediation.py::test_m8_04_eligibility_authority_override` showing bidirectional authority overrides:
+The application uses deterministic services (\`M5_ENGINE\`) to verify the eligibility state. The \`AgentResponse\` enforces that the decision returned is either \`ELIGIBLE\`, \`NOT_ELIGIBLE\`, or \`UNKNOWN\`.
+Verified by \`tests/test_m8_authority_remediation.py::test_m8_04_eligibility_authority_override\` showing bidirectional authority overrides:
 - LLM claims ELIGIBLE, M5 says NOT_ELIGIBLE -> Result: NOT_ELIGIBLE
 - LLM claims NOT_ELIGIBLE, M5 says ELIGIBLE -> Result: ELIGIBLE
-Also verified by `tests/test_m8_orchestration.py::test_m8_07_memory_current_state` to ensure past conversational history cannot override the current engine's authority.
+Also verified by \`tests/test_m8_orchestration.py::test_m8_07_memory_current_state\` to ensure past conversational history cannot override the current engine's authority.
