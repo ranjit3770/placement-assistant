@@ -14,7 +14,7 @@ from app.core.security import Principal
 from app.core.services.eligibility_service import EligibilityService
 from app.infrastructure.models.policy import Requirement, RequirementActivation, RequirementVersion
 from app.infrastructure.models.recruitment import Opportunity
-from app.infrastructure.models.students import Student
+from app.infrastructure.models.students import Student, User
 
 
 class M8EligibilityInput(BaseModel):
@@ -35,9 +35,13 @@ class M8EligibilityRepository:
         if self.principal.role != "STUDENT":
             raise PermissionError("Student identity required")
         student_id = await self.session.scalar(
-            select(Student.id).where(
+            select(Student.id)
+            .join(User, User.id == Student.user_id)
+            .where(
                 Student.institution_id == self.principal.institution_id,
                 Student.user_id == self.principal.sub,
+                User.institution_id == self.principal.institution_id,
+                User.status == "ACTIVE",
             )
         )
         if student_id is None:

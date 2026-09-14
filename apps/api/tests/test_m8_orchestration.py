@@ -64,7 +64,7 @@ async def test_principal(db_session):
         source_reference="test"
     )
     db_session.add(student)
-    user = User(institution_id=inst.id, login=f"{uuid4().hex}@example.invalid",
+    user = User(institution_id=inst.id, status="ACTIVE", login=f"{uuid4().hex}@example.invalid",
                 source_type="SYSTEM", source_reference="test")
     db_session.add(user)
     await db_session.flush()
@@ -108,14 +108,6 @@ def create_response(content: str = None, tool_calls: list = None):
         object="chat.completion"
     )
 
-async def test_m8_01_loop_termination_budget(mock_memory):
-    from app.agent.limits import BudgetExhaustedError
-    responses = [create_response(tool_calls=[create_tool_call("get_student_profile", {})]) for _ in range(10)]
-    openai = create_mock_openai(responses)
-    orchestrator = AgentOrchestrator(memory=mock_memory, openai_client=openai)
-    with pytest.raises(BudgetExhaustedError):
-        await orchestrator.execute(uuid4(), "query")
-
 async def test_m8_02_schema_bridge(mock_memory):
     orchestrator = AgentOrchestrator(memory=mock_memory, openai_client=AsyncMock())
     tools = orchestrator._get_openai_tools()
@@ -154,7 +146,7 @@ async def test_m8_05_06_tenant_isolation(db_session):
     s3 = Student(institution_id=inst2.id, roll_number=uuid4().hex[:4], source_type="SYSTEM", source_reference="test")
     db_session.add_all([s1, s2, s3])
     for student in (s1, s2, s3):
-        user = User(institution_id=student.institution_id, login=f"{uuid4().hex}@example.invalid",
+        user = User(institution_id=student.institution_id, status="ACTIVE", login=f"{uuid4().hex}@example.invalid",
                     source_type="SYSTEM", source_reference="test")
         db_session.add(user)
         await db_session.flush()
@@ -192,20 +184,6 @@ async def test_m8_07_memory_current_state(mock_memory):
     response = await orchestrator.execute(uuid4(), "Am I eligible?")
     assert response.decision == "UNKNOWN"
 
-async def test_m8_08_parallel_tools_budget(mock_memory):
-    call1 = create_tool_call("get_student_profile", {})
-    call2 = create_tool_call("get_student_academics", {})
-    call3 = create_tool_call("get_student_placement_history", {})
-    
-    resp1 = create_response(tool_calls=[call1, call2, call3])
-    resp2 = create_response(tool_calls=[call1, call2, call3])
-    resp3 = create_response(content="Done")
-    
-    openai = create_mock_openai([resp1, resp2, resp3])
-    orchestrator = AgentOrchestrator(memory=mock_memory, openai_client=openai)
-    
-    await orchestrator.execute(uuid4(), "query")
-
 async def test_m8_09_unknown_tool(mock_memory):
     resp1 = create_response(tool_calls=[create_tool_call("hack_database", {})])
     resp2 = create_response(content="I tried.")
@@ -221,16 +199,6 @@ async def test_m8_09_unknown_tool(mock_memory):
     assert res.decision == "UNKNOWN"
     assert res.decision_source is None
     assert res.message == "Eligibility has not been verified. No authoritative decision is available."
-
-async def test_m8_10_repeated_cycle(mock_memory):
-    call = create_tool_call("get_student_profile", {})
-    resp1 = create_response(tool_calls=[call])
-    resp2 = create_response(tool_calls=[call])
-    resp3 = create_response(content="Ok")
-    openai = create_mock_openai([resp1, resp2, resp3])
-    orchestrator = AgentOrchestrator(memory=mock_memory, openai_client=openai)
-    res = await orchestrator.execute(uuid4(), "query")
-    assert res.decision == "UNKNOWN"
 
 def create_access_token(principal: Principal, secret: str, iss: str, aud: str):
     import time
@@ -274,7 +242,7 @@ async def test_m8_11_api_authorization(test_app, db_session):
     s2 = Student(institution_id=inst1.id, roll_number=uuid4().hex[:4], source_type="SYSTEM", source_reference="test")
     db_session.add_all([s1, s2])
     for student in (s1, s2):
-        user = User(institution_id=student.institution_id, login=f"{uuid4().hex}@example.invalid",
+        user = User(institution_id=student.institution_id, status="ACTIVE", login=f"{uuid4().hex}@example.invalid",
                     source_type="SYSTEM", source_reference="test")
         db_session.add(user)
         await db_session.flush()

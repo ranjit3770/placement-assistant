@@ -1,0 +1,7 @@
+8b5b0ec41ea974e3b7b60a245beb80d3a69a40dbc136c0a7ff267d861df3268f  ./configuration/configuration.json
+fb9ca400d43fa0dd229ffd93be741834cefcb60982ca9ff81c1ee0804b442e43  ./tests/case-mapping.txt
+70cd138e3c45bc5c228917ec0b752f59c6eb753f75b0ff1078f3641a65953191  ./tests/test-output.txt
+9e1278f902618369fece3054f2f18f9764d027a6eba00248ac3bb6ab2cf12a54  ./commits/commits.txt
+4af83eae5f03ff4450e07adc10713048dc26690f37de4b075b327ffcf3e7243f  ./security/m8-08-budget-limits.txt
+2218b2d2f78e4e86e3c653ec8e3c6025623d98bc749c5c3980b97a0feb2973db  ./security/m8-04-eligibility-authority.txt
+6b396354327406e848f67eff8c27e4cee398dce0f76c9aee1c538d2dcaa9b5f3  ./security/m8-05-tenant-isolation.txt

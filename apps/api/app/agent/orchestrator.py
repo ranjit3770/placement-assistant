@@ -14,6 +14,7 @@ from app.agent.core import AgentResponse, EvidenceReference
 from app.agent.prompts.system import AGENT_SYSTEM_PROMPT
 from app.agent.prompts.guardrails import GUARDRAILS_PROMPT
 from app.agent.m8_authority import M8EligibilityInput, M8AgentResponse, evaluate_m5, authority_message
+from app.agent.m8_policy_tools import PolicySearchInput, m8_search_policy
 from app.api.schemas.eligibility import EligibilityDecisionResponse
 
 logger = logging.getLogger(__name__)
@@ -28,6 +29,14 @@ class AgentOrchestrator:
         self.registry["evaluate_eligibility"] = RegisteredTool(
             name="evaluate_eligibility", description="Evaluate the authenticated student using M5.",
             input_schema=M8EligibilityInput, handler=evaluate_m5, effect=ToolEffect.EVALUATION,
+        )
+        # Override M7 stub search_policy with real M6 bridge.
+        self.registry["search_policy"] = RegisteredTool(
+            name="search_policy",
+            description="Searches for institutional placement policy evidence using the certified M6 retrieval service. Only returns verified evidence.",
+            input_schema=PolicySearchInput,
+            handler=m8_search_policy,
+            effect=ToolEffect.READ_ONLY,
         )
 
     def _get_openai_tools(self) -> list[dict[str, Any]]:
@@ -178,14 +187,14 @@ class AgentOrchestrator:
                             source_hash=result.get("source_hash")
                         ))
                     elif tool_name == "search_policy" and isinstance(result, dict):
-                        # Search policy may also return verified evidence snippets
-                        evidence_list = result.get("evidence", [])
-                        for ev in evidence_list:
-                            if isinstance(ev, dict):
+                        # Collect verified evidence from the M6 RetrievalService output.
+                        # Abstained results have evidence=[] and are correctly ignored here.
+                        for ev in result.get("evidence", []):
+                            if isinstance(ev, dict) and not result.get("abstained", False):
                                 verified_evidence.append(EvidenceReference(
                                     document_id=ev.get("document_id", ""),
-                                    policy_version=ev.get("policy_version", "1.0"),
-                                    content=ev.get("content", ""),
+                                    policy_version=ev.get("policy_version_id", ""),
+                                    content=ev.get("text", ""),
                                     source_hash=ev.get("source_hash")
                                 ))
                     

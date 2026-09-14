@@ -16,6 +16,52 @@ from app.agent.memory import ConversationMemory
 from app.agent.orchestrator import AgentOrchestrator
 from app.core.security import Principal
 from app.infrastructure.models.eligibility import EligibilityDecision
+from app.infrastructure.models.policy import RequirementActivation, Policy, PolicyVersion, PolicyActivation, PolicyRule
+
+async def setup_eligible_policy(db_session, inst, ay):
+    starts = datetime.now(UTC) - timedelta(days=1)
+    policy = Policy(
+        institution_id=inst.id,
+        code=f"P_{uuid4().hex[:8]}",
+        name="Eligible Policy",
+        source_type="SYSTEM",
+        source_reference="test",
+    )
+    db_session.add(policy)
+    await db_session.flush()
+
+    pv = PolicyVersion(
+        institution_id=inst.id,
+        policy_id=policy.id,
+        version=1,
+        academic_year_id=ay.id,
+        scope="ALL",
+        status="ACTIVE",
+        schema_version=1,
+        definition={},
+        source_type="SYSTEM",
+        source_reference="test",
+        effective_at=datetime.now(UTC),
+    )
+    db_session.add(pv)
+    await db_session.flush()
+
+    pa = PolicyActivation(
+        institution_id=inst.id,
+        policy_version_id=pv.id,
+        academic_year_id=ay.id,
+        scope="ALL",
+        starts_at=starts,
+        ends_at=datetime.now(UTC) + timedelta(days=300),
+        source_type="SYSTEM",
+        source_reference="test",
+    )
+    db_session.add(pa)
+    await db_session.flush()
+    return policy
+
+from app.core.security import Principal
+from app.infrastructure.models.eligibility import EligibilityDecision
 from app.infrastructure.models.policy import RequirementActivation
 from app.infrastructure.models.students import AcademicYear, Institution
 
@@ -134,5 +180,158 @@ async def test_m8_real_m5_overrides_contradiction_and_history():
             # The adapter uses the actual service's idempotent persisted decision.
             repeated = await evaluate_m5(M8EligibilityInput(opportunity_id=opportunity.id), context)
             assert repeated["id"] == str(actual.id)
+    finally:
+        await engine.dispose()
+
+@pytest.mark.anyio
+async def test_m8_real_m5_overrides_llm_claim_eligible_to_not_eligible():
+    url = os.environ.get("M8_TEST_DATABASE_URL")
+    if not url:
+        pytest.skip("M8_TEST_DATABASE_URL required for real PostgreSQL")
+    engine = create_async_engine(url)
+    try:
+        async with async_sessionmaker(engine, expire_on_commit=False)() as session:
+            inst = Institution(code=f"M8R-{uuid4().hex[:6]}", name="M8 remediation fixture")
+            session.add(inst)
+            await session.flush()
+            year = AcademicYear(
+                institution_id=inst.id,
+                code=f"R-{uuid4().hex[:8]}",
+                starts_at=datetime.now(UTC) - timedelta(days=30),
+                ends_at=datetime.now(UTC) + timedelta(days=300),
+                source_type="SYSTEM",
+                source_reference="test",
+            )
+            session.add(year)
+            await session.commit()
+            student, opportunity, requirement, _ = await setup_base_data(session, inst, year)
+            await setup_policy(session, inst, year)
+            requirement.published_at = datetime.now(UTC) - timedelta(seconds=1)
+            session.add(RequirementActivation(
+                institution_id=inst.id,
+                requirement_id=requirement.requirement_id,
+                requirement_version_id=requirement.id,
+                starts_at=datetime.now(UTC) - timedelta(seconds=1),
+                source_type="SYSTEM",
+                source_reference="test",
+            ))
+            await session.commit()
+
+            principal = Principal(sub=student.user_id, institution_id=inst.id, role="STUDENT")
+            context = ToolContext(principal, "m8-real-engine", session)
+            memory = ConversationMemory(session, context)
+            conversation_id = uuid4()
+            
+            client = AsyncMock()
+            client.chat.completions.create.side_effect = [
+                completion(calls=[call(opportunity.id)]),
+                completion("You are eligible."),
+            ]
+            response = await AgentOrchestrator(memory, client).execute(conversation_id, "Check")
+            assert response.decision == "NOT_ELIGIBLE"
+            assert response.message == "You are not eligible for the evaluated opportunity."
+    finally:
+        await engine.dispose()
+
+
+@pytest.mark.anyio
+async def test_m8_real_m5_overrides_llm_claim_not_eligible_to_eligible():
+    url = os.environ.get("M8_TEST_DATABASE_URL")
+    if not url:
+        pytest.skip("M8_TEST_DATABASE_URL required for real PostgreSQL")
+    engine = create_async_engine(url)
+    try:
+        async with async_sessionmaker(engine, expire_on_commit=False)() as session:
+            inst = Institution(code=f"M8R-{uuid4().hex[:6]}", name="M8 remediation fixture")
+            session.add(inst)
+            await session.flush()
+            year = AcademicYear(
+                institution_id=inst.id,
+                code=f"R-{uuid4().hex[:8]}",
+                starts_at=datetime.now(UTC) - timedelta(days=30),
+                ends_at=datetime.now(UTC) + timedelta(days=300),
+                source_type="SYSTEM",
+                source_reference="test",
+            )
+            session.add(year)
+            await session.commit()
+            student, opportunity, requirement, _ = await setup_base_data(session, inst, year)
+            await setup_eligible_policy(session, inst, year)
+            
+            requirement.published_at = datetime.now(UTC) - timedelta(seconds=1)
+            session.add(RequirementActivation(
+                institution_id=inst.id,
+                requirement_id=requirement.requirement_id,
+                requirement_version_id=requirement.id,
+                starts_at=datetime.now(UTC) - timedelta(seconds=1),
+                source_type="SYSTEM",
+                source_reference="test",
+            ))
+            await session.commit()
+
+            principal = Principal(sub=student.user_id, institution_id=inst.id, role="STUDENT")
+            context = ToolContext(principal, "m8-real-engine", session)
+            memory = ConversationMemory(session, context)
+            conversation_id = uuid4()
+            
+            client = AsyncMock()
+            client.chat.completions.create.side_effect = [
+                completion(calls=[call(opportunity.id)]),
+                completion("You are NOT eligible."),
+            ]
+            response = await AgentOrchestrator(memory, client).execute(conversation_id, "Check")
+            assert response.decision == "ELIGIBLE"
+            assert response.message == "You are eligible for the evaluated opportunity."
+    finally:
+        await engine.dispose()
+
+@pytest.mark.anyio
+async def test_m8_real_m5_resolves_llm_unknown_to_eligible():
+    url = os.environ.get("M8_TEST_DATABASE_URL")
+    if not url:
+        pytest.skip("M8_TEST_DATABASE_URL required for real PostgreSQL")
+    engine = create_async_engine(url)
+    try:
+        async with async_sessionmaker(engine, expire_on_commit=False)() as session:
+            inst = Institution(code=f"M8R-{uuid4().hex[:6]}", name="M8 remediation fixture")
+            session.add(inst)
+            await session.flush()
+            year = AcademicYear(
+                institution_id=inst.id,
+                code=f"R-{uuid4().hex[:8]}",
+                starts_at=datetime.now(UTC) - timedelta(days=30),
+                ends_at=datetime.now(UTC) + timedelta(days=300),
+                source_type="SYSTEM",
+                source_reference="test",
+            )
+            session.add(year)
+            await session.commit()
+            student, opportunity, requirement, _ = await setup_base_data(session, inst, year)
+            await setup_eligible_policy(session, inst, year)
+            
+            requirement.published_at = datetime.now(UTC) - timedelta(seconds=1)
+            session.add(RequirementActivation(
+                institution_id=inst.id,
+                requirement_id=requirement.requirement_id,
+                requirement_version_id=requirement.id,
+                starts_at=datetime.now(UTC) - timedelta(seconds=1),
+                source_type="SYSTEM",
+                source_reference="test",
+            ))
+            await session.commit()
+
+            principal = Principal(sub=student.user_id, institution_id=inst.id, role="STUDENT")
+            context = ToolContext(principal, "m8-real-engine", session)
+            memory = ConversationMemory(session, context)
+            conversation_id = uuid4()
+            
+            client = AsyncMock()
+            client.chat.completions.create.side_effect = [
+                completion(calls=[call(opportunity.id)]),
+                completion("I cannot determine if you are eligible."),
+            ]
+            response = await AgentOrchestrator(memory, client).execute(conversation_id, "Check")
+            assert response.decision == "ELIGIBLE"
+            assert response.message == "You are eligible for the evaluated opportunity."
     finally:
         await engine.dispose()

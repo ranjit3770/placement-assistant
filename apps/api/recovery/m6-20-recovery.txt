@@ -1,0 +1,11 @@
+M6-20 | Recovery
+  source preserved                 PASS
+  original Qdrant generation       PASS
+  Qdrant generation destroyed      PASS
+  rebuild initiated                PASS
+  vectors regenerated              PASS
+  manifest verified                PASS
+  generation published             PASS
+  retrieval succeeds               PASS
+  citation matches original        PASS
+M6-20 | PASS
