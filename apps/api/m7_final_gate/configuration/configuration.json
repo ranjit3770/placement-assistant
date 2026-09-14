@@ -1,6 +1,8 @@
 {
   "milestone": "M7",
-  "status": "IMPLEMENTED",
-  "commit": "a3a76cf5abff40e42ca1e17da02d69d3686abba4",
-  "regression_tests": 126
+  "application_commit": "8503c8e8b5bbff5c546e6ab94ffbef111e061fcb",
+  "evidence_commit": "14ad2dc7cde93ae2d98f9c481633b3e376bc5db1",
+  "test_command": "uv run pytest",
+  "test_count": 129,
+  "status": "CERTIFICATION_PENDING"
 }

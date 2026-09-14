@@ -32,4 +32,4 @@ tests/test_m7_agent_tools.py ....                                        [100%]
     _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-================= 129 passed, 24 skipped, 2 warnings in 7.13s ==================
+================= 129 passed, 24 skipped, 2 warnings in 6.73s ==================
