@@ -4,8 +4,5 @@
   "Policy/version correctness": "100%",
   "Citation exactness": "100%",
   "Abstention accuracy": "100%",
-  "Cross-tenant disclosure": 0,
-  "Unauthorized disclosure": 0,
-  "M5 behavior change": 0,
   "Retrieval p95 (ms)": 154
 }

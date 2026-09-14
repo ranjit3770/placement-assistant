@@ -1,0 +1,8 @@
+Answerable:             37/40 retrieved @5
+
+Unanswerable/security:  20/20 abstained
+  unanswerable          4/4
+  cross-tenant          4/4
+  unauthorized          4/4
+  revoked/stale         4/4
+  ambiguous             4/4

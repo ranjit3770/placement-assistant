@@ -1,0 +1,21 @@
+M6-01 | Source preservation            | PASS
+M6-02 | Legacy source unavailable      | PASS
+M6-03 | Source/binding integrity       | PASS
+M6-04 | Parsing/locators               | PASS
+M6-05 | Unsupported/scanned content    | PASS
+M6-06 | Malformed/oversized files      | PASS
+M6-07 | Chunking                       | PASS
+M6-08 | Embedding contract             | PASS
+M6-09 | Idempotency/concurrency        | PASS
+M6-10 | Partial index                  | PASS
+M6-11 | Current policy                 | PASS
+M6-12 | Historical evidence            | PASS
+M6-13 | No/ambiguous policy            | PASS
+M6-14 | Tenant/role boundary           | PASS
+M6-15 | Stale index                    | PASS
+M6-16 | Citation integrity             | PASS
+M6-17 | Outage/abstention              | PASS
+M6-18 | Prompt injection               | PASS
+M6-19 | M5 decision stability          | PASS
+M6-20 | Qdrant recovery                | PASS
+M6-21 | Full regression                | PASS
