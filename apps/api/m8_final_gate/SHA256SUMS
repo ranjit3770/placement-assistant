@@ -1,7 +1,7 @@
 1a91a5a16703503d766ecd2828b5be3a66729a30852bc1740a2fbf76ffad2bd4  ./configuration/configuration.json
 e8481906de781542b0b9d3afd5897061cee0bbb8b3ec6ae9b8ef5504de4f7de5  ./tests/case-mapping.txt
-7cb3ce5ca134b7ed8812a43416ea9b5ab3eed5d76b5e07e48eaeb1c3d2c5c30d  ./tests/test-output.txt
-126bc7c2bc4eadbad405993c929f281af485376bf91004c26f9fff8c628bf91e  ./commits/commits.txt
+e1bec1ed6cd429babc473218c291a3b5b9892b80d16e780a4554f517b8cc0bb2  ./tests/test-output.txt
+447766cd36f02a1f9e607d4c7128104095b03b10a5b7406f853e8a11a5bef4b3  ./commits/commits.txt
 2d2e9e75ee6933a41083166c6a8e9f5b5a2a806f1ff3431166b22c80d9d4d55f  ./security/m8-08-budget-limits.txt
 b648661715ddabd961b1959eeecd4725c612593fa8ee71b3bf4f7d42ea2f2884  ./security/m8-12-policy-rag-integration.txt
 56af5d58906b741ef3c45240730029e0682f535fefb7f6413dda598cfe9fae99  ./security/m8-04-eligibility-authority.txt
