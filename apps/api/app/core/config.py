@@ -12,6 +12,10 @@ class Settings(BaseSettings):
     database_url: SecretStr
     redis_url: SecretStr
     qdrant_url: str
+    embedding_provider_url: str = "http://dummy"
+    embedding_model: str = "dummy-model"
+    embedding_dimensions: int = 1536
+    embedding_api_key: str | None = None
     jwt_secret: SecretStr
     jwt_issuer: str = "placement-api"
     jwt_audience: str = "placement-web"

@@ -673,6 +673,7 @@ M6  🟡 IMPLEMENTATION IN PROGRESS
       ✅ Increment 1 — Source authority
       ✅ Increment 2 — Binding lifecycle
       ✅ Increment 3 — Durable Ingestion
+      ✅ Increment 4 — Embedding & Qdrant Indexing
 ```
 
 M5 was independently certified at commit `d75ffbb06a9479e8451a44f82af870864cbfb38b`,

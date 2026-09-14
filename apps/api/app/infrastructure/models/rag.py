@@ -169,3 +169,37 @@ class RagChunk(TenantRow):
             name="chunk_locator_present",
         ),
     )
+
+
+class RagIndexGeneration(TenantRow):
+    __tablename__ = "rag_index_generations"
+
+    run_id: Mapped[UUID]
+    space_id: Mapped[str] = mapped_column(String(64))
+    collection_name: Mapped[str] = mapped_column(String(200))
+    expected_chunk_count: Mapped[int]
+    status: Mapped[str] = mapped_column(String(20))
+
+    constraints = (
+        scoped_fk("run_id", "rag_ingestion_runs"),
+        UniqueConstraint("institution_id", "run_id", "space_id"),
+        choices("status", "PENDING VERIFIED PUBLISHED FAILED"),
+        CheckConstraint("expected_chunk_count >= 0", name="generation_chunk_count_bounds"),
+        CheckConstraint("space_id ~ '^[0-9a-f]{64}$'", name="generation_space_id_format"),
+        CheckConstraint("length(trim(collection_name)) > 0", name="generation_collection_name_required"),
+    )
+
+
+class RagPublishedGeneration(TenantRow):
+    __tablename__ = "rag_published_generations"
+
+    binding_id: Mapped[UUID]
+    generation_id: Mapped[UUID]
+    published_at: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=True))
+
+    constraints = (
+        scoped_fk("binding_id", "rag_policy_sources"),
+        scoped_fk("generation_id", "rag_index_generations"),
+        UniqueConstraint("institution_id", "binding_id"),
+        UniqueConstraint("institution_id", "generation_id"),
+    )
