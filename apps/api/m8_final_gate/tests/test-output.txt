@@ -12,19 +12,19 @@ tests/test_m3_api.py .........                                           [ 16%]
 tests/test_m4_api.py ....                                                [ 18%]
 tests/test_m5_eligibility.py ........                                    [ 22%]
 tests/test_m5_eligibility_integration.py .............                   [ 29%]
-tests/test_m6_binding_postgres.py sss                                    [ 31%]
+tests/test_m6_binding_postgres.py ...                                    [ 31%]
 tests/test_m6_certification.py .....................                     [ 42%]
-tests/test_m6_generation_postgres.py ..ssss                              [ 45%]
-tests/test_m6_ingestion_postgres.py ssssss                               [ 48%]
+tests/test_m6_generation_postgres.py ......                              [ 45%]
+tests/test_m6_ingestion_postgres.py ......                               [ 48%]
 tests/test_m6_integrity.py ........................................      [ 69%]
-tests/test_m6_retrieval_postgres.py sss                                  [ 70%]
-tests/test_m6_sources_postgres.py ssssssss                               [ 75%]
+tests/test_m6_retrieval_postgres.py ...                                  [ 70%]
+tests/test_m6_sources_postgres.py ........                               [ 75%]
 tests/test_m7_agent_security.py .....                                    [ 77%]
 tests/test_m7_agent_tools.py ....                                        [ 79%]
 tests/test_m8_authority_remediation.py ......                            [ 82%]
 tests/test_m8_authorization.py ................                          [ 91%]
 tests/test_m8_budget.py ...                                              [ 92%]
-tests/test_m8_m6_integration.py ......s                                  [ 96%]
+tests/test_m8_m6_integration.py .......                                  [ 96%]
 tests/test_m8_orchestration.py .......                                   [100%]
 
 =============================== warnings summary ===============================
@@ -32,5 +32,14 @@ tests/test_m8_orchestration.py .......                                   [100%]
   /home/ranjit/PROJECTS/placement-assistant/apps/api/.venv/lib/python3.14/site-packages/starlette/testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
     _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
 
+tests/test_m6_generation_postgres.py::test_m6_04_c_manifest_verification[asyncio]
+tests/test_m6_generation_postgres.py::test_m6_04_d_atomic_publication[asyncio]
+tests/test_m6_generation_postgres.py::test_m6_04_e_partial_failure[asyncio]
+tests/test_m6_generation_postgres.py::test_m6_04_f_retry_idempotency[asyncio]
+  /home/ranjit/PROJECTS/placement-assistant/apps/api/app/rag/qdrant_adapter.py:36: RuntimeWarning: coroutine 'AsyncMockMixin._execute_mock_call' was never awaited
+    resp.raise_for_status()
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-================= 167 passed, 25 skipped, 1 warning in 13.53s ==================
+======================= 192 passed, 5 warnings in 16.43s =======================
