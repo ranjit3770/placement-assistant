@@ -4,24 +4,28 @@ rootdir: /home/ranjit/PROJECTS/placement-assistant/apps/api
 configfile: pyproject.toml
 testpaths: tests
 plugins: anyio-4.15.1
-collected 163 items
+collected 192 items
 
-tests/test_foundation.py ..................                              [ 11%]
-tests/test_m2_persistence.py .....                                       [ 14%]
-tests/test_m3_api.py .........                                           [ 19%]
-tests/test_m4_api.py ....                                                [ 22%]
-tests/test_m5_eligibility.py ........                                    [ 26%]
-tests/test_m5_eligibility_integration.py .............                   [ 34%]
-tests/test_m6_binding_postgres.py sss                                    [ 36%]
-tests/test_m6_certification.py .....................                     [ 49%]
-tests/test_m6_generation_postgres.py ..ssss                              [ 53%]
-tests/test_m6_ingestion_postgres.py ssssss                               [ 57%]
-tests/test_m6_integrity.py ........................................      [ 81%]
-tests/test_m6_retrieval_postgres.py sss                                  [ 83%]
-tests/test_m6_sources_postgres.py ssssssss                               [ 88%]
-tests/test_m7_agent_security.py .....                                    [ 91%]
-tests/test_m7_agent_tools.py ....                                        [ 93%]
-tests/test_m8_orchestration.py ..........                                [100%]
+tests/test_foundation.py ..................                              [  9%]
+tests/test_m2_persistence.py .....                                       [ 11%]
+tests/test_m3_api.py .........                                           [ 16%]
+tests/test_m4_api.py ....                                                [ 18%]
+tests/test_m5_eligibility.py ........                                    [ 22%]
+tests/test_m5_eligibility_integration.py .............                   [ 29%]
+tests/test_m6_binding_postgres.py sss                                    [ 31%]
+tests/test_m6_certification.py .....................                     [ 42%]
+tests/test_m6_generation_postgres.py ..ssss                              [ 45%]
+tests/test_m6_ingestion_postgres.py ssssss                               [ 48%]
+tests/test_m6_integrity.py ........................................      [ 69%]
+tests/test_m6_retrieval_postgres.py sss                                  [ 70%]
+tests/test_m6_sources_postgres.py ssssssss                               [ 75%]
+tests/test_m7_agent_security.py .....                                    [ 77%]
+tests/test_m7_agent_tools.py ....                                        [ 79%]
+tests/test_m8_authority_remediation.py ......                            [ 82%]
+tests/test_m8_authorization.py ................                          [ 91%]
+tests/test_m8_budget.py ...                                              [ 92%]
+tests/test_m8_m6_integration.py ......s                                  [ 96%]
+tests/test_m8_orchestration.py .......                                   [100%]
 
 =============================== warnings summary ===============================
 .venv/lib/python3.14/site-packages/starlette/testclient.py:53
@@ -29,4 +33,4 @@ tests/test_m8_orchestration.py ..........                                [100%]
     _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-================== 139 passed, 24 skipped, 1 warning in 9.40s ==================
+================= 167 passed, 25 skipped, 1 warning in 12.47s ==================

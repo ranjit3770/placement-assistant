@@ -1,0 +1,2 @@
+Evidence for M8-12:
+Policy retrieval is implemented in `m8_m6_bridge.py` and `m8_policy_tools.py`, which maps the agent's query to the M6 `RetrievalService`. Results retain full `VerifiedEvidence` properties (chunk hashes, document metadata). Isolation is maintained, and missing state gracefully yields an abstention without model fabrication, verified in `test_m8_m6_integration.py`.

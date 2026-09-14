@@ -9,3 +9,4 @@ M8-08 Parallel tools budget                  PASS
 M8-09 Unknown tool fallback                  PASS
 M8-10 Repeated cycle termination             PASS
 M8-11 API authorization                      PASS
+M8-12 Policy RAG integration                 PASS
