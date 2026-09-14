@@ -1,0 +1,2 @@
+Evidence for M7-06:
+The `AgentResponse` structure separates the LLM's `message` from the engine's `decision`. In `test_m7_06_eligibility_authority`, even if the LLM states "NOT_ELIGIBLE", the final structured response correctly reflects the M5 engine's "ELIGIBLE" decision. The LLM cannot override authoritative data.

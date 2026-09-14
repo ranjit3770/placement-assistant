@@ -1,0 +1,10 @@
+M7-01 Tool schema                    PASS
+M7-02 Auth isolation                 PASS
+M7-03 Forged identity                PASS
+M7-04 Role boundary                  PASS
+M7-05 Mutation boundary              PASS
+M7-06 Eligibility authority          PASS
+M7-07 Evidence authority             PASS
+M7-08 Prompt injection               PASS
+M7-09 Missing authoritative data     PASS
+M7-10 M1-M6 regression               PASS

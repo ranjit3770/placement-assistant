@@ -1,0 +1,2 @@
+Evidence for M7-02:
+The `@agent_tool` decorator and `ToolContext` signature enforce that all tools in the `_TOOL_REGISTRY` use the server-owned `context.principal.sub` (Student ID) for identity operations. The tool signature inspection tests in `test_m7_agent_security.py` confirm this.

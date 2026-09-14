@@ -1,0 +1,2 @@
+Evidence for M7-04:
+The `ToolContext` includes the trusted `Principal.role`. Future tools that require "STAFF" or "COORDINATOR" access can assert against `context.principal.role`. Verified in `test_m7_04_role_boundary`.

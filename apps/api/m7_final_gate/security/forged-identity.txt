@@ -1,0 +1,3 @@
+Evidence for M7-03:
+1. Schema Rejection: Passing `student_id` or `tenant_id` inside LLM arguments is automatically ignored or fails Pydantic `ValidationError`.
+2. Context Override Attempt: The LLM cannot forge the `ToolContext`, as it is not part of the `args` payload. The execution context is strictly instantiated and injected by the application. Verified in `test_m7_03_forged_identity_ignored`.

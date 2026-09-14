@@ -1,0 +1,2 @@
+Evidence for M7-07:
+In `test_m7_07_evidence_authority`, if the LLM fabricates a citation ("According to page 17..."), the `evidence` struct remains empty. The application populates `evidence` exclusively via M6's retrieval service, rendering LLM-manufactured citations unverified and powerless.
