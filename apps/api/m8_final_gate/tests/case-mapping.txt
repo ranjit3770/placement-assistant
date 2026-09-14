@@ -1,12 +1,12 @@
-M8-01 Tool execution loop budget             PASS
-M8-02 Schema bridge                          PASS
-M8-03 State preservation                     PASS
-M8-04 Eligibility authority                  PASS
-M8-05 Tenant isolation                       PASS
-M8-06 Student isolation                      PASS
-M8-07 Memory current state                   PASS
-M8-08 Parallel tools budget                  PASS
-M8-09 Unknown tool fallback                  PASS
-M8-10 Repeated cycle termination             PASS
-M8-11 API authorization                      PASS
-M8-12 Policy RAG integration                 PASS
+M8-01 Tool execution loop budget             tests/test_m8_budget.py::test_m8_01_loop_termination_budget
+M8-02 Schema bridge                          tests/test_m8_orchestration.py::test_m8_02_schema_bridge
+M8-03 State preservation                     tests/test_m8_orchestration.py::test_m8_03_state_preservation
+M8-04 Eligibility authority                  tests/test_m8_authority_remediation.py::test_m8_04_eligibility_authority_override
+M8-05 Tenant isolation                       tests/test_m8_authorization.py::test_m8_05_tenant_isolation_boundary
+M8-06 Student isolation                      tests/test_m8_authorization.py::test_m8_06_student_isolation_boundary
+M8-07 Memory current state                   tests/test_m8_orchestration.py::test_m8_07_memory_current_state
+M8-08 Parallel tools budget                  tests/test_m8_budget.py::test_m8_08_parallel_tools_budget
+M8-09 Unknown tool fallback                  tests/test_m8_orchestration.py::test_m8_09_unknown_tool_fallback
+M8-10 Repeated cycle termination             tests/test_m8_budget.py::test_m8_10_repeated_cycle
+M8-11 API authorization                      tests/test_m8_authorization.py::test_m8_11_api_authorization_matrix
+M8-12 Policy RAG integration                 tests/test_m8_m6_integration.py::test_m8_12_m6_real_retrieval_certified

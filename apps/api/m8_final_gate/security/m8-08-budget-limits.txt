@@ -1,2 +1,6 @@
 Evidence for M8-01, M8-08 and M8-10:
-An execution budget limits the number of orchestration steps (10) and parallel tool calls (5) via the `ExecutionBudget` utility. Tests `test_m8_01_loop_termination_budget`, `test_m8_08_parallel_tools_budget`, and `test_m8_10_repeated_cycle` verify that budget exhaustion strictly terminates the orchestration loop with a `BudgetExhaustedError` and limits the impact of adversarial cycles.
+Execution budgets limit overall orchestration steps (MAX_STEPS) and parallel tool execution (MAX_TOOL_CALLS) with strict exhaustion exceptions.
+Verified by:
+- MAX_STEPS limits: `tests/test_m8_budget.py::test_m8_01_loop_termination_budget`
+- MAX_TOOL_CALLS parallel limit: `tests/test_m8_budget.py::test_m8_08_parallel_tools_budget`
+- Adversarial cycle detection/termination: `tests/test_m8_budget.py::test_m8_10_repeated_cycle`

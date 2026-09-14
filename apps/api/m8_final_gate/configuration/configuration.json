@@ -1,7 +1,10 @@
 {
   "milestone": "M8",
   "implementation_commit": "c81f814f431737a3da000316470f99ca0a5ed8f8",
-  "test_command": "uv run pytest",
+  "migration_head": "370d02e14256",
+  "test_command": "uv run pytest -v",
   "test_count": 192,
-  "status": "CERTIFICATION_READY"
+  "passed": 192,
+  "failed": 0,
+  "skipped": 0
 }
