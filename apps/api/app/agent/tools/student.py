@@ -1,11 +1,11 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import Any
 
 from app.agent.context import ToolContext
 from app.agent.registry import agent_tool, ToolEffect
 
 class EmptyInput(BaseModel):
-    pass
+    model_config = ConfigDict(extra="forbid")
 
 @agent_tool(
     name="get_student_profile",

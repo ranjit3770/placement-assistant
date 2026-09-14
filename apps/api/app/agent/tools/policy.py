@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import Any
 from uuid import UUID
 
@@ -8,10 +8,12 @@ from app.agent.tools.student import EmptyInput
 
 class PolicySearchInput(BaseModel):
     query: str
+    model_config = ConfigDict(extra="forbid")
 
 class PolicyEvidenceInput(BaseModel):
     document_id: str
     section: str | None = None
+    model_config = ConfigDict(extra="forbid")
 
 @agent_tool(
     name="search_policy",

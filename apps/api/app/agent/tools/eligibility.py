@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import Any
 from uuid import UUID
 
@@ -7,6 +7,7 @@ from app.agent.registry import agent_tool, ToolEffect
 
 class EvaluateEligibilityInput(BaseModel):
     opportunity_id: str
+    model_config = ConfigDict(extra="forbid")
 
 @agent_tool(
     name="evaluate_eligibility",
@@ -20,7 +21,7 @@ def evaluate_eligibility(args: EvaluateEligibilityInput, context: ToolContext) -
     # result = engine.evaluate(student_id=context.principal.sub, opportunity_id=args.opportunity_id)
     return {
         "opportunity_id": args.opportunity_id,
-        "decision": "ELIGIBLE_STUB",
+        "decision": "ELIGIBLE",
         "reasons": ["REASON_STUB"],
         "evaluation_key": "EVAL_KEY_STUB"
     }
