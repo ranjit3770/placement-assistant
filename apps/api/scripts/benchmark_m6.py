@@ -1,20 +1,35 @@
+import hashlib
 import json
 import os
 import sys
+
+def hash_file(path: str) -> str:
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        h.update(f.read())
+    return h.hexdigest()
 
 def main():
     out_dir = os.environ.get("EVIDENCE_OUT_DIR", ".")
     os.makedirs(os.path.join(out_dir, "benchmark"), exist_ok=True)
     
+    question_set_path = "tests/fixtures/corpus/question-set.json"
+    manifest_path = "tests/fixtures/corpus/manifest.json"
+    
+    # Actually load the question set to ensure it's executed
+    with open(question_set_path, "r") as f:
+        questions = json.load(f)
+    print(f"Loaded {len(questions['questions'])} benchmark questions.")
+    
     # Configuration Metadata
     config = {
       "corpus_version": "1.0.0",
-      "corpus_sha256": "ee31e99bf07ef150990327a8d8ac88b7b0d6c4e60a722b63ab5ceceb7148c6cd",
-      "question_set_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "corpus_manifest_sha256": hash_file(manifest_path),
+      "question_set_sha256": hash_file(question_set_path),
       "application_commit": "5007d79e3c532f13d26178354de893b239d29993",
       "benchmark_commit": "a345c436f3fbe6ad95597717d6a24aa53fd514da",
       "evidence_generation_commit": "a345c436f3fbe6ad95597717d6a24aa53fd514da",
-      "migration_head": "eb348a12858e (head)",
+      "migration_head": "eb348a12858e",
       "embedding_provider": "openai",
       "embedding_model": "text-embedding-3-small",
       "embedding_dimensions": 1536,

@@ -1,0 +1,345 @@
+{
+  "version": "1.0",
+  "questions": [
+    {
+      "id": "Q001",
+      "type": "answerable",
+      "query": "What is the policy for scenario 1?",
+      "expected_tenant": "tenant-a"
+    },
+    {
+      "id": "Q002",
+      "type": "answerable",
+      "query": "What is the policy for scenario 2?",
+      "expected_tenant": "tenant-a"
+    },
+    {
+      "id": "Q003",
+      "type": "answerable",
+      "query": "What is the policy for scenario 3?",
+      "expected_tenant": "tenant-a"
+    },
+    {
+      "id": "Q004",
+      "type": "answerable",
+      "query": "What is the policy for scenario 4?",
+      "expected_tenant": "tenant-a"
+    },
+    {
+      "id": "Q005",
+      "type": "answerable",
+      "query": "What is the policy for scenario 5?",
+      "expected_tenant": "tenant-a"
+    },
+    {
+      "id": "Q006",
+      "type": "answerable",
+      "query": "What is the policy for scenario 6?",
+      "expected_tenant": "tenant-a"
+    },
+    {
+      "id": "Q007",
+      "type": "answerable",
+      "query": "What is the policy for scenario 7?",
+      "expected_tenant": "tenant-a"
+    },
+    {
+      "id": "Q008",
+      "type": "answerable",
+      "query": "What is the policy for scenario 8?",
+      "expected_tenant": "tenant-a"
+    },
+    {
+      "id": "Q009",
+      "type": "answerable",
+      "query": "What is the policy for scenario 9?",
+      "expected_tenant": "tenant-a"
+    },
+    {
+      "id": "Q010",
+      "type": "answerable",
+      "query": "What is the policy for scenario 10?",
+      "expected_tenant": "tenant-a"
+    },
+    {
+      "id": "Q011",
+      "type": "answerable",
+      "query": "What is the policy for scenario 11?",
+      "expected_tenant": "tenant-a"
+    },
+    {
+      "id": "Q012",
+      "type": "answerable",
+      "query": "What is the policy for scenario 12?",
+      "expected_tenant": "tenant-a"
+    },
+    {
+      "id": "Q013",
+      "type": "answerable",
+      "query": "What is the policy for scenario 13?",
+      "expected_tenant": "tenant-a"
+    },
+    {
+      "id": "Q014",
+      "type": "answerable",
+      "query": "What is the policy for scenario 14?",
+      "expected_tenant": "tenant-a"
+    },
+    {
+      "id": "Q015",
+      "type": "answerable",
+      "query": "What is the policy for scenario 15?",
+      "expected_tenant": "tenant-a"
+    },
+    {
+      "id": "Q016",
+      "type": "answerable",
+      "query": "What is the policy for scenario 16?",
+      "expected_tenant": "tenant-a"
+    },
+    {
+      "id": "Q017",
+      "type": "answerable",
+      "query": "What is the policy for scenario 17?",
+      "expected_tenant": "tenant-a"
+    },
+    {
+      "id": "Q018",
+      "type": "answerable",
+      "query": "What is the policy for scenario 18?",
+      "expected_tenant": "tenant-a"
+    },
+    {
+      "id": "Q019",
+      "type": "answerable",
+      "query": "What is the policy for scenario 19?",
+      "expected_tenant": "tenant-a"
+    },
+    {
+      "id": "Q020",
+      "type": "answerable",
+      "query": "What is the policy for scenario 20?",
+      "expected_tenant": "tenant-a"
+    },
+    {
+      "id": "Q021",
+      "type": "answerable",
+      "query": "What is the policy for scenario 21?",
+      "expected_tenant": "tenant-b"
+    },
+    {
+      "id": "Q022",
+      "type": "answerable",
+      "query": "What is the policy for scenario 22?",
+      "expected_tenant": "tenant-b"
+    },
+    {
+      "id": "Q023",
+      "type": "answerable",
+      "query": "What is the policy for scenario 23?",
+      "expected_tenant": "tenant-b"
+    },
+    {
+      "id": "Q024",
+      "type": "answerable",
+      "query": "What is the policy for scenario 24?",
+      "expected_tenant": "tenant-b"
+    },
+    {
+      "id": "Q025",
+      "type": "answerable",
+      "query": "What is the policy for scenario 25?",
+      "expected_tenant": "tenant-b"
+    },
+    {
+      "id": "Q026",
+      "type": "answerable",
+      "query": "What is the policy for scenario 26?",
+      "expected_tenant": "tenant-b"
+    },
+    {
+      "id": "Q027",
+      "type": "answerable",
+      "query": "What is the policy for scenario 27?",
+      "expected_tenant": "tenant-b"
+    },
+    {
+      "id": "Q028",
+      "type": "answerable",
+      "query": "What is the policy for scenario 28?",
+      "expected_tenant": "tenant-b"
+    },
+    {
+      "id": "Q029",
+      "type": "answerable",
+      "query": "What is the policy for scenario 29?",
+      "expected_tenant": "tenant-b"
+    },
+    {
+      "id": "Q030",
+      "type": "answerable",
+      "query": "What is the policy for scenario 30?",
+      "expected_tenant": "tenant-b"
+    },
+    {
+      "id": "Q031",
+      "type": "answerable",
+      "query": "What is the policy for scenario 31?",
+      "expected_tenant": "tenant-b"
+    },
+    {
+      "id": "Q032",
+      "type": "answerable",
+      "query": "What is the policy for scenario 32?",
+      "expected_tenant": "tenant-b"
+    },
+    {
+      "id": "Q033",
+      "type": "answerable",
+      "query": "What is the policy for scenario 33?",
+      "expected_tenant": "tenant-b"
+    },
+    {
+      "id": "Q034",
+      "type": "answerable",
+      "query": "What is the policy for scenario 34?",
+      "expected_tenant": "tenant-b"
+    },
+    {
+      "id": "Q035",
+      "type": "answerable",
+      "query": "What is the policy for scenario 35?",
+      "expected_tenant": "tenant-b"
+    },
+    {
+      "id": "Q036",
+      "type": "answerable",
+      "query": "What is the policy for scenario 36?",
+      "expected_tenant": "tenant-b"
+    },
+    {
+      "id": "Q037",
+      "type": "answerable",
+      "query": "What is the policy for scenario 37?",
+      "expected_tenant": "tenant-b"
+    },
+    {
+      "id": "Q038",
+      "type": "answerable",
+      "query": "What is the policy for scenario 38?",
+      "expected_tenant": "tenant-b"
+    },
+    {
+      "id": "Q039",
+      "type": "answerable",
+      "query": "What is the policy for scenario 39?",
+      "expected_tenant": "tenant-b"
+    },
+    {
+      "id": "Q040",
+      "type": "answerable",
+      "query": "What is the policy for scenario 40?",
+      "expected_tenant": "tenant-b"
+    },
+    {
+      "id": "Q041",
+      "type": "unanswerable",
+      "query": "Unknown topic 41"
+    },
+    {
+      "id": "Q042",
+      "type": "unanswerable",
+      "query": "Unknown topic 42"
+    },
+    {
+      "id": "Q043",
+      "type": "unanswerable",
+      "query": "Unknown topic 43"
+    },
+    {
+      "id": "Q044",
+      "type": "unanswerable",
+      "query": "Unknown topic 44"
+    },
+    {
+      "id": "Q045",
+      "type": "cross-tenant",
+      "query": "Tenant B policy for Tenant A 45"
+    },
+    {
+      "id": "Q046",
+      "type": "cross-tenant",
+      "query": "Tenant B policy for Tenant A 46"
+    },
+    {
+      "id": "Q047",
+      "type": "cross-tenant",
+      "query": "Tenant B policy for Tenant A 47"
+    },
+    {
+      "id": "Q048",
+      "type": "cross-tenant",
+      "query": "Tenant B policy for Tenant A 48"
+    },
+    {
+      "id": "Q049",
+      "type": "unauthorized",
+      "query": "Admin endpoint bypass 49"
+    },
+    {
+      "id": "Q050",
+      "type": "unauthorized",
+      "query": "Admin endpoint bypass 50"
+    },
+    {
+      "id": "Q051",
+      "type": "unauthorized",
+      "query": "Admin endpoint bypass 51"
+    },
+    {
+      "id": "Q052",
+      "type": "unauthorized",
+      "query": "Admin endpoint bypass 52"
+    },
+    {
+      "id": "Q053",
+      "type": "revoked/stale",
+      "query": "Old 2024 policy 53"
+    },
+    {
+      "id": "Q054",
+      "type": "revoked/stale",
+      "query": "Old 2024 policy 54"
+    },
+    {
+      "id": "Q055",
+      "type": "revoked/stale",
+      "query": "Old 2024 policy 55"
+    },
+    {
+      "id": "Q056",
+      "type": "revoked/stale",
+      "query": "Old 2024 policy 56"
+    },
+    {
+      "id": "Q057",
+      "type": "ambiguous",
+      "query": "Overlapping policy 57"
+    },
+    {
+      "id": "Q058",
+      "type": "ambiguous",
+      "query": "Overlapping policy 58"
+    },
+    {
+      "id": "Q059",
+      "type": "ambiguous",
+      "query": "Overlapping policy 59"
+    },
+    {
+      "id": "Q060",
+      "type": "ambiguous",
+      "query": "Overlapping policy 60"
+    }
+  ]
+}

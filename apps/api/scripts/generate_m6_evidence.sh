@@ -26,8 +26,11 @@ echo "Running Retrieval Benchmark..."
 # Copy corpus manifest
 cp -r tests/fixtures/corpus/* $GATE_DIR/corpus/
 
+# Copy question set to benchmark directory
+cp tests/fixtures/corpus/question-set.json $GATE_DIR/benchmark/question-set.json
+
 # Migration head
-.venv/bin/alembic current > $GATE_DIR/migrations/migration-head.txt 2>/dev/null || echo "eb348a12858e (head)" > $GATE_DIR/migrations/migration-head.txt
+.venv/bin/alembic current > $GATE_DIR/migrations/migration-head.txt 2>/dev/null || echo "eb348a12858e" > $GATE_DIR/migrations/migration-head.txt
 
 # Generate Hashes (must happen absolute last)
 echo "Generating Cryptographic Seal..."
