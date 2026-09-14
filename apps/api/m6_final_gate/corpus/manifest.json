@@ -1,0 +1,32 @@
+{
+  "corpus_version": "1.0.0",
+  "documents": [
+    {
+      "id": "doc_tenant_a_2025",
+      "tenant": "tenant-a",
+      "policy_version": "v2025",
+      "academic_year": "2025-2026",
+      "scope": "placement",
+      "path": "tenant-a/policy_2025.md",
+      "sha256": "0f1eb52146f2a498a272c83cb8ca56b3c6de7419d682171781f102afd9f97dfd"
+    },
+    {
+      "id": "doc_tenant_a_2026",
+      "tenant": "tenant-a",
+      "policy_version": "v2026",
+      "academic_year": "2026-2027",
+      "scope": "placement",
+      "path": "tenant-a/policy_2026.md",
+      "sha256": "eebba638eb8be15155e7e40af8133f70bf00b6d811bde6e377f5675cbbfa4723"
+    },
+    {
+      "id": "doc_tenant_b_2025",
+      "tenant": "tenant-b",
+      "policy_version": "v2025",
+      "academic_year": "2025-2026",
+      "scope": "placement",
+      "path": "tenant-b/policy_2025.md",
+      "sha256": "46741676ee484a128ec34af5c77af14d96770be4387690d7efed2c62430f0dc5"
+    }
+  ]
+}

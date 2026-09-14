@@ -105,3 +105,32 @@ class QdrantAdapter:
         except httpx.HTTPError as e:
             logger.exception("Qdrant fetch_manifest failed")
             raise EvidenceError("QDRANT_COMMUNICATION_ERROR") from e
+
+    async def search(
+        self, collection_name: str, query_vector: Sequence[float], limit: int = 5, generation_id: UUID | None = None
+    ) -> list[tuple[UUID, float]]:
+        """Search Qdrant for nearest points."""
+        payload: dict = {
+            "vector": query_vector,
+            "limit": limit,
+            "with_payload": False,
+            "with_vector": False,
+        }
+        if generation_id:
+            payload["filter"] = {
+                "must": [
+                    {
+                        "key": "generation_id",
+                        "match": {"value": str(generation_id)}
+                    }
+                ]
+            }
+        
+        try:
+            resp = await self.client.post(f"/collections/{collection_name}/points/search", json=payload)
+            resp.raise_for_status()
+            data = resp.json()["result"]
+            return [(UUID(item["id"]), float(item["score"])) for item in data]
+        except httpx.HTTPError as e:
+            logger.exception("Qdrant search failed")
+            raise EvidenceError("QDRANT_COMMUNICATION_ERROR") from e

@@ -203,3 +203,26 @@ def validate_manifest(expected: Sequence[ManifestPoint], actual: Sequence[Manife
         or set(expected) != set(actual)
     ):
         raise EvidenceError("INDEX_MANIFEST_MISMATCH")
+
+
+@dataclass(frozen=True)
+class CitationMetadata:
+    document_id: UUID
+    source_hash: str
+    chunk_hash: str
+    ordinal: int
+    page: int | None
+    section: str | None
+    start_offset: int
+    end_offset: int
+
+    def __post_init__(self) -> None:
+        validate_hash(self.source_hash)
+        validate_hash(self.chunk_hash)
+
+
+@dataclass(frozen=True)
+class VerifiedEvidence:
+    text: str
+    citation: CitationMetadata
+    score: float | None = None
