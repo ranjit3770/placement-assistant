@@ -1,0 +1,32 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.4, pytest-9.1.1, pluggy-1.6.0
+rootdir: /home/ranjit/PROJECTS/placement-assistant/apps/api
+configfile: pyproject.toml
+testpaths: tests
+plugins: anyio-4.15.1
+collected 163 items
+
+tests/test_foundation.py ..................                              [ 11%]
+tests/test_m2_persistence.py .....                                       [ 14%]
+tests/test_m3_api.py .........                                           [ 19%]
+tests/test_m4_api.py ....                                                [ 22%]
+tests/test_m5_eligibility.py ........                                    [ 26%]
+tests/test_m5_eligibility_integration.py .............                   [ 34%]
+tests/test_m6_binding_postgres.py sss                                    [ 36%]
+tests/test_m6_certification.py .....................                     [ 49%]
+tests/test_m6_generation_postgres.py ..ssss                              [ 53%]
+tests/test_m6_ingestion_postgres.py ssssss                               [ 57%]
+tests/test_m6_integrity.py ........................................      [ 81%]
+tests/test_m6_retrieval_postgres.py sss                                  [ 83%]
+tests/test_m6_sources_postgres.py ssssssss                               [ 88%]
+tests/test_m7_agent_security.py .....                                    [ 91%]
+tests/test_m7_agent_tools.py ....                                        [ 93%]
+tests/test_m8_orchestration.py ..........                                [100%]
+
+=============================== warnings summary ===============================
+.venv/lib/python3.14/site-packages/starlette/testclient.py:53
+  /home/ranjit/PROJECTS/placement-assistant/apps/api/.venv/lib/python3.14/site-packages/starlette/testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================== 139 passed, 24 skipped, 1 warning in 9.40s ==================

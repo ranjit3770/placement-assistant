@@ -1,0 +1,2 @@
+Evidence for M8-04 and M8-07:
+The application uses deterministic services (`M5_ENGINE`) to verify the eligibility state. The `AgentResponse` enforces that the decision returned is either `ELIGIBLE`, `NOT_ELIGIBLE`, or `UNKNOWN`, defaulting to `UNKNOWN`. `test_m8_04_eligibility_authority` explicitly demonstrates that even if the LLM is prompted to return an altered state, the `AgentResponse` correctly reflects the deterministic output. Test `test_m8_07_memory_current_state` ensures that past decisions in conversational history cannot override the current engine's authority.

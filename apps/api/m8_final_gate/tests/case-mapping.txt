@@ -1,0 +1,11 @@
+M8-01 Tool execution loop budget             PASS
+M8-02 Schema bridge                          PASS
+M8-03 State preservation                     PASS
+M8-04 Eligibility authority                  PASS
+M8-05 Tenant isolation                       PASS
+M8-06 Student isolation                      PASS
+M8-07 Memory current state                   PASS
+M8-08 Parallel tools budget                  PASS
+M8-09 Unknown tool fallback                  PASS
+M8-10 Repeated cycle termination             PASS
+M8-11 API authorization                      PASS
