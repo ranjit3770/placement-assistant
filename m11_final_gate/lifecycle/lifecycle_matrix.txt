@@ -1,0 +1,10 @@
+M1 Foundation: CERTIFIED / FROZEN
+M2 Persistence: CERTIFIED / FROZEN
+M3 Company: CERTIFIED / FROZEN
+M4 Policy: CERTIFIED / FROZEN
+M5 Eligibility: CERTIFIED / FROZEN
+M6 Policy RAG: CERTIFIED / FROZEN
+M7 Agent Foundation: CERTIFIED / FROZEN
+M8 Agent Orchestration: CERTIFIED / FROZEN
+M9 Student Copilot: CERTIFIED / FROZEN
+M10 Production Gate: CERTIFIED / FROZEN

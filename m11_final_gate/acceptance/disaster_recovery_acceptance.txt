@@ -1,0 +1,4 @@
+Disaster Recovery Acceptance:
+PostgreSQL Backup and Restore Recovery Acceptance: PASS
+Redis Disposable infrastructure: ACCEPTED
+Qdrant Rebuildable from M6 corpus: ACCEPTED

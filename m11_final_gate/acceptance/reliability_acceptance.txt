@@ -1,0 +1,2 @@
+Reliability Acceptance: PASS
+References M10 evidence for PostgreSQL connection pooling, health/ready endpoints, dependency degradation, structured logging, tracing, metrics, and migration safety.
