@@ -1,6 +1,6 @@
 {
   "milestone": "M8",
-  "application_commit": "0696ebbe7d2c2d10ccc36101ea0d22c6ee940787",
+  "application_commit": "a13244d7018797639afa035bac1b8ff5bc476620",
   "evidence_commit": "PENDING_COMMIT",
   "test_command": "uv run pytest",
   "test_count": 167,

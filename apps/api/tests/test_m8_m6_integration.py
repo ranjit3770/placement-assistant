@@ -244,7 +244,7 @@ async def test_m8_m6_real_retrieval_certified():
     from app.rag.qdrant_adapter import QdrantAdapter
     from app.rag.embedding_provider import HTTPEmbeddingProvider
     from app.infrastructure.models.policy import Document, Policy, PolicyVersion
-    from app.infrastructure.models.students import Institution, User
+    from app.infrastructure.models.students import Institution, User, AcademicYear
     from app.infrastructure.models.rag import (
         RagBindingEvent,
         RagChunk,
@@ -286,16 +286,39 @@ async def test_m8_m6_real_retrieval_certified():
             )
             session.add(doc)
 
-            policy = Policy(institution_id=inst.id, name="M8 Test Policy", source_type="SYSTEM", source_reference="m8-m6-test")
+            policy = Policy(
+                institution_id=inst.id, 
+                code=f"P_{uuid.uuid4().hex[:8]}", 
+                name="M8 Test Policy", 
+                source_type="SYSTEM", 
+                source_reference="m8-m6-test"
+            )
             session.add(policy)
             await session.flush()
 
             from datetime import UTC, datetime, timedelta
+            # Need an academic year for PolicyVersion
+            ay = AcademicYear(
+                institution_id=inst.id,
+                code=f"AY-{uuid.uuid4().hex[:4]}",
+                starts_at=datetime.now(UTC) - timedelta(days=30),
+                ends_at=datetime.now(UTC) + timedelta(days=300),
+                source_type="SYSTEM",
+                source_reference="m8-m6-test",
+            )
+            session.add(ay)
+            await session.flush()
+
             pv = PolicyVersion(
                 institution_id=inst.id,
                 policy_id=policy.id,
-                version="1.0",
-                published_at=datetime.now(UTC) - timedelta(seconds=1),
+                version=1,
+                academic_year_id=ay.id,
+                scope="ALL",
+                status="ACTIVE",
+                schema_version=1,
+                definition={},
+                effective_at=datetime.now(UTC) - timedelta(seconds=1),
                 source_type="SYSTEM",
                 source_reference="m8-m6-test",
             )
