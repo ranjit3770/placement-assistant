@@ -1,7 +1,8 @@
-de9eab669a9e20c3855a6c96a7fe84fc9c75ac670b42b1a428a66782e83ab0be  ./configuration/configuration.json
-577c6eb79335bdbfd98d0e2b97c67b9563a97e932bb2a062e6a1ec4f3b08b425  ./tests/case-mapping.txt
-8397703970de993102a42b276b0aea949b6b37db981382deb57c5248ae0718d1  ./tests/test-output.txt
+66b2b83807c5edcfe7265bdc047434d7481c0e7bfbfa68fd465a388acb2d5508  ./configuration/configuration.json
+f2079287b489c21b7e96c4449ac11a1c55eeb30de4b2ab099ddf089c18ee2beb  ./tests/case-mapping.txt
+e7ce7ba647de91fc638d69ad6c73e48c8408158d0e233b2c5a842f782738c4ac  ./tests/test-output.txt
 4df36e4adc236d99e70b808f3b44801bd3ae51e837199d1d2ab1807368b72315  ./commits/commits.txt
+195b1d7879128c3b817c0f6c05cdfcf73f0ce158ca8cbcdfb7a0b39ac4f67cb9  ./security/m9-production-auth.txt
 2c13d3a5dd408fdf010291115b9762f1f4ea41b3fd242eadf4e9cd5ea86318d5  ./security/m9-11-to-15-authorization.txt
 4bd8c240f9e84113edf190e1c256a1f07abd830bbdb76d2acbf37ef31aedce9d  ./security/m9-16-to-18-data-exposure.txt
-74a4e203dffcc7199419a80d12213ee46385ed0decd96eda111de3d3afaecd4f  ./security/m9-xss-mitigation.txt
+1b0d15f304e70269245777e27cb4c77cd326b0b5e4e860163c6c7911d1e9ae0f  ./security/m9-xss-mitigation.txt

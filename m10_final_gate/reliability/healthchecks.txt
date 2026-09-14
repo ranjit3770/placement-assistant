@@ -1,0 +1,2 @@
+Evidence for M10-04:
+All containers have robust `healthcheck` declarations in Docker Compose. The API exposes `/health` (liveness) and `/ready` (readiness).

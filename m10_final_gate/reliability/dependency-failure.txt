@@ -1,0 +1,2 @@
+Evidence for M10-05:
+The `/ready` endpoint checks the status of Postgres, Redis, and Qdrant. If Redis or Qdrant fail, `/ready` reports degraded state but still serves 200 OK because PostgreSQL is the critical decision authority. The API degrades gracefully during vector search outages.

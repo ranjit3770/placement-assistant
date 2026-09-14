@@ -1,0 +1,2 @@
+Evidence for M10-07 and M10-08:
+FastAPI middleware injects a UUID trace ID into every request. `JsonFormatter` in `logging.py` structures all stdout logs as JSON and guarantees the trace ID is attached, allowing aggregation systems to parse it.

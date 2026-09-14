@@ -1,0 +1,2 @@
+Evidence for M10-03:
+Only the Nginx container exposes port 8080 to the host. The API, Web, Postgres, Redis, and Qdrant containers have no port mappings in `docker-compose.yml`, isolating them entirely within the internal Docker network.

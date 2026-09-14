@@ -1,0 +1,2 @@
+Evidence for M10-09:
+Implemented a vendor-neutral `/metrics` endpoint on the API which serves standard JSON metrics mapping to `requests_total`, `errors_total`, and `active_connections`. This fulfills the minimum metrics contract for standard scrapers.

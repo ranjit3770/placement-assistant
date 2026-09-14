@@ -1,0 +1,2 @@
+Evidence for M10-10:
+Alembic upgrades are idempotent. We do not automatically run migrations in entrypoints to prevent race conditions across replicas. Migrations are to be executed as a separate Kubernetes Job or pre-deployment task.

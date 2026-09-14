@@ -1,0 +1,2 @@
+Evidence for M10-16:
+Database backward compatibility must be maintained. Rollbacks are performed by deploying the previous container image hash. Database downgrades are not automatically executed.

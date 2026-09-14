@@ -1,0 +1,2 @@
+Evidence for M10-12:
+PostgreSQL backup strategy uses standard `pg_dump -Fc`. We verified the ability to take a full logical backup of the schema and data representing the source of truth for student facts and eligibility.

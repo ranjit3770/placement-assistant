@@ -1,0 +1,2 @@
+Evidence for M10-04:
+`/health` provides simple process liveness. `/ready` dynamically checks upstream dependencies and differentiates between "up" and "down" accurately.

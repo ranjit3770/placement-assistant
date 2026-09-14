@@ -118,6 +118,25 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             return error(request, "INVALID_OPERATION", 400)
         raise exc
 
+
+    @app.get("/metrics")
+    async def metrics(request: Request) -> JSONResponse:
+        # Vendor-neutral metrics contract
+        # Standard collector scrapes this endpoint
+        return JSONResponse(
+            {
+                "service": "placement-api",
+                "version": "0.1.0",
+                "metrics": {
+                    # Example placeholders for scraper
+                    "requests_total": 0,
+                    "errors_total": 0,
+                    "active_connections": 0
+                }
+            },
+            status_code=200
+        )
+
     @app.get("/health")
     async def health() -> dict[str, str]:
         return {"status": "ok", "service": "placement-api"}
@@ -146,6 +165,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         requirements,
         policies,
         eligibility,
+            copilot,
         agent,
     )
 
@@ -154,6 +174,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(requirements.router, prefix="/api/v1")
     app.include_router(policies.router, prefix="/api/v1")
     app.include_router(eligibility.router, prefix="/api/v1")
+    app.include_router(copilot.router, prefix="/api/v1")
     app.include_router(agent.router, prefix="/api/v1")
 
     return app

@@ -80,6 +80,26 @@ class ConversationMemory:
         await self.db.refresh(message)
         return message
 
+
+    async def list_sessions(self) -> list[ConversationSession]:
+        student_id = await M8EligibilityRepository(self.db, self.context.principal).owned_student()
+        stmt = select(ConversationSession).where(
+            and_(
+                ConversationSession.institution_id == self.institution_id,
+                ConversationSession.student_id == student_id,
+            )
+        ).order_by(ConversationSession.created_at.desc())
+        result = await self.db.execute(stmt)
+        return list(result.scalars().all())
+
+    async def get_raw_messages(self, conversation_id: UUID) -> list[ConversationMessage]:
+        session = await self.get_or_create_session(conversation_id)
+        stmt = select(ConversationMessage).where(
+            ConversationMessage.session_id == session.id
+        ).order_by(ConversationMessage.sequence_number.asc())
+        result = await self.db.execute(stmt)
+        return list(result.scalars().all())
+
     async def get_messages(self, conversation_id: UUID) -> list[dict]:
         session = await self.get_or_create_session(conversation_id)
         

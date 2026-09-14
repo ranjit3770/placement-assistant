@@ -1,0 +1,18 @@
+M10-01 Container security                   PASS
+M10-02 Production secret enforcement        PASS
+M10-03 Network exposure                     PASS
+M10-04 Health/readiness                     PASS
+M10-05 Dependency failure                   PASS
+M10-06 Database pool/reliability            PASS
+M10-07 Structured logging                   PASS
+M10-08 Trace propagation                    PASS
+M10-09 Metrics contract                     PASS
+M10-10 Migration safety                     PASS
+M10-11 Production image                     PASS
+M10-12 PostgreSQL backup                    PASS
+M10-13 PostgreSQL restore                   PASS
+M10-14 Redis/Qdrant recovery classification PASS
+M10-15 Production smoke tests               PASS
+M10-16 Rollback procedure                   PASS
+M10-17 Security baseline                    PASS
+M10-18 Final release certification          PASS

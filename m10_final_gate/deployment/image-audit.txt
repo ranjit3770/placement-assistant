@@ -1,0 +1,2 @@
+Evidence for M10-11:
+Docker builds exclude development tooling. `uv sync --no-dev` prevents `pytest` installation. Next.js standalone mode only packages production `node_modules`.

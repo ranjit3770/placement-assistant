@@ -1,0 +1,2 @@
+Evidence for M10-13:
+Restore strategy verified utilizing `pg_restore` onto a fresh Postgres container, with application fully resuming operations.

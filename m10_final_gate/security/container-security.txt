@@ -1,0 +1,4 @@
+Evidence for M10-01 and M10-17:
+- All Dockerfiles (api, web, worker) define a non-root user (e.g., `appuser` with UID 10001, `node` user).
+- `docker-compose.yml` strictly enforces `security_opt: [no-new-privileges:true]` across services.
+- Verified running containers report non-root execution.

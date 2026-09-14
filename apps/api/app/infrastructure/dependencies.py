@@ -14,7 +14,7 @@ class Dependencies:
     def __init__(self, settings: Settings) -> None:
         self.timeout = settings.dependency_timeout_seconds
         self.engine = create_async_engine(
-            settings.database_url.get_secret_value(), pool_pre_ping=True, pool_timeout=self.timeout
+            settings.database_url.get_secret_value(), pool_pre_ping=True, pool_timeout=self.timeout, pool_size=20, max_overflow=10
         )
         self.redis = Redis.from_url(
             settings.redis_url.get_secret_value(),

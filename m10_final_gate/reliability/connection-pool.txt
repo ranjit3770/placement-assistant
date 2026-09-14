@@ -1,0 +1,2 @@
+Evidence for M10-06:
+SQLAlchemy AsyncEngine is configured with `pool_size=20` and `max_overflow=10` in `dependencies.py` to handle production concurrency effectively while guarding against connection spikes.

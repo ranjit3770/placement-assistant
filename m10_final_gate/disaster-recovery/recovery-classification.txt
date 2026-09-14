@@ -1,0 +1,4 @@
+Evidence for M10-14:
+- PostgreSQL: AUTHORITATIVE. Requires strict Point-in-Time Recovery (PITR) and daily logical backups.
+- Redis: DISPOSABLE. Used for ephemeral caching and worker heartbeats. Data loss requires no recovery action; new instances start cold.
+- Qdrant: REBUILDABLE. Can be rebuilt entirely from source policy documents using the M6 ingestion pipeline. Backups (snapshots) are optional but recommended to avoid ingestion compute costs during DR.
