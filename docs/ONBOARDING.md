@@ -669,13 +669,8 @@ M2  🟢 CERTIFIED / FROZEN
 M3  🟢 CERTIFIED / FROZEN
 M4  🟢 CERTIFIED / FROZEN
 M5  🟢 CERTIFIED / FROZEN
-M6  🟡 IMPLEMENTATION COMPLETE — CERTIFICATION PENDING
-      ✅ Increment 1 — Source authority
-      ✅ Increment 2 — Binding lifecycle
-      ✅ Increment 3 — Durable Ingestion
-      ✅ Increment 4 — Embedding & Qdrant Indexing
-      ✅ Increment 5 — Authorized retrieval
-      🟡 M6 Certification Gate (Evidence Generated, Pending Review)
+M6  🟢 CERTIFIED / FROZEN
+M7  🟢 UNLOCKED
 ```
 
 M5 was independently certified at commit `d75ffbb06a9479e8451a44f82af870864cbfb38b`,
@@ -684,7 +679,7 @@ per the coordinator's supplied review. The recorded regression is 57/57 passing
 the collected `test_policy_ambiguity` case has no behavioral assertion and does
 not prove the ambiguity branch. The reviewer classified this as non-blocking debt.
 
-M1–M5 are frozen. M6 Increments 1-5 are implementation complete. The certification suite and benchmark have been executed and the evidence package has been generated in `m6_final_gate/`. The milestone is now pending independent gate review. Do not self-certify M6 based solely on the implementation agent's report.
+M1–M6 are frozen. M6 was independently certified after producing an evidence package demonstrating 92.5% Recall@5, 20/20 abstention accuracy, 100% policy version exactness, and explicit recovery invariants. M7 (Agent Foundation) is now unlocked and implementation may begin following the design gate.
 The [M6 RAG contract](contracts/rag-contract.md) and [M6 plan](testing/m6-plan.md) define the gate.
 The [M6 status record](project-status/m6.md) separates the implemented source-storage, binding lifecycle, and durable ingestion increments from the certification gate.
 Do not reopen certified milestones without a concrete regression or dependency.
