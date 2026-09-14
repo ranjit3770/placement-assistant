@@ -215,4 +215,5 @@ tests/test_m6_generation_postgres.py::test_m6_04_f_retry_idempotency[asyncio]
   See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-======================= 192 passed, 5 warnings in 17.69s =======================
+- generated xml file: /home/ranjit/PROJECTS/placement-assistant/apps/api/m8_final_gate/tests/report.xml -
+======================= 192 passed, 5 warnings in 17.55s =======================

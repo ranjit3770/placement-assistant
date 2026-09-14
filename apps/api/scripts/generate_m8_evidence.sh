@@ -24,24 +24,38 @@ export M8_TEST_DATABASE_URL="postgresql+psycopg://test:test@127.0.0.1:5434/test"
 export M6_TEST_DATABASE_URL="postgresql+psycopg://test:test@127.0.0.1:5434/test"
 export M6_TEST_QDRANT_URL="http://127.0.0.1:6333"
 
-uv run pytest -v > "$OUT_DIR/tests/test-output.txt"
+uv run pytest -v --junitxml="$OUT_DIR/tests/report.xml" > "$OUT_DIR/tests/test-output.txt"
 
 python3 -c "
-import sys, re
-lines = sys.stdin.readlines()[-10:]
-text = ' '.join(lines)
-def get_count(label):
-    m = re.search(r'(\d+) ' + label, text)
-    return m.group(1) if m else '0'
-print(get_count('passed'))
-print(get_count('skipped'))
-print(get_count('failed'))
-" < "$OUT_DIR/tests/test-output.txt" > "$OUT_DIR/tests/counts.txt"
+import sys, xml.etree.ElementTree as ET
+try:
+    tree = ET.parse('$OUT_DIR/tests/report.xml')
+    ts = tree.getroot()
+    if ts.tag == 'testsuites':
+        ts = ts.find('testsuite')
+    
+    tests = ts.attrib['tests']
+    failures = ts.attrib['failures']
+    errors = ts.attrib['errors']
+    skipped = ts.attrib['skipped']
+    
+    passed = int(tests) - int(failures) - int(errors) - int(skipped)
+    print(passed)
+    print(skipped)
+    print(int(failures) + int(errors))
+except KeyError as e:
+    sys.stderr.write(f'Error: missing required field in test XML: {e}\n')
+    sys.exit(1)
+except Exception as e:
+    sys.stderr.write(f'Error: {e}\n')
+    sys.exit(1)
+" > "$OUT_DIR/tests/counts.txt"
 
 TEST_COUNT=$(sed -n 1p "$OUT_DIR/tests/counts.txt")
 SKIPPED_COUNT=$(sed -n 2p "$OUT_DIR/tests/counts.txt")
 FAILED_COUNT=$(sed -n 3p "$OUT_DIR/tests/counts.txt")
 rm "$OUT_DIR/tests/counts.txt"
+rm "$OUT_DIR/tests/report.xml"
 
 if [ "$SKIPPED_COUNT" -ne 0 ]; then
   echo "Error: tests were skipped."
@@ -54,7 +68,8 @@ fi
 
 MIGRATION_HEAD=$(uv run alembic current 2>/dev/null | awk '/\(head\)/ {print $1}')
 if [ -z "$MIGRATION_HEAD" ]; then
-    MIGRATION_HEAD="370d02e14256"
+    echo "Error: Could not determine Alembic migration head." >&2
+    exit 1
 fi
 
 echo "Migration head:" >> "$OUT_DIR/commits/commits.txt"
