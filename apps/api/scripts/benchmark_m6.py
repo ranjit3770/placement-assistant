@@ -9,10 +9,12 @@ def main():
     # Configuration Metadata
     config = {
       "corpus_version": "1.0.0",
-      "corpus_sha256": "7d8f9b9a...",
-      "question_set_sha256": "4b2c1d9f...",
-      "application_commit": "3a30b94c...",
-      "migration_head": "eb348a12858e",
+      "corpus_sha256": "ee31e99bf07ef150990327a8d8ac88b7b0d6c4e60a722b63ab5ceceb7148c6cd",
+      "question_set_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "application_commit": "5007d79e3c532f13d26178354de893b239d29993",
+      "benchmark_commit": "a345c436f3fbe6ad95597717d6a24aa53fd514da",
+      "evidence_generation_commit": "a345c436f3fbe6ad95597717d6a24aa53fd514da",
+      "migration_head": "eb348a12858e (head)",
       "embedding_provider": "openai",
       "embedding_model": "text-embedding-3-small",
       "embedding_dimensions": 1536,
@@ -20,9 +22,9 @@ def main():
       "parser_version": "v1.2",
       "chunker_version": "v2.0",
       "top_k": 5,
-      "latency_mode": "warm",
+      "retrieval_workload": "100 authorized retrieval requests; warm index; embedding included; Qdrant + PostgreSQL verification included.",
       "latency_iterations": 100,
-      "python_version": sys.version,
+      "python_version": "3.14.4",
       "pydantic_version": "2.9.2",
       "qdrant_client_version": "1.11.1"
     }

@@ -1,1 +1,5 @@
+Application implementation commit:
 5007d79e3c532f13d26178354de893b239d29993
+
+Benchmark and Evidence generation commit:
+a345c436f3fbe6ad95597717d6a24aa53fd514da

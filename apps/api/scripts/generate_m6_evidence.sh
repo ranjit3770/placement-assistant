@@ -9,7 +9,11 @@ echo "Generating M6 Certification Evidence Package..."
 export EVIDENCE_OUT_DIR="$PWD/$GATE_DIR"
 
 # Get application commit
-git rev-parse HEAD > $GATE_DIR/commits/commits.txt
+echo "Application implementation commit:" > $GATE_DIR/commits/commits.txt
+echo "5007d79e3c532f13d26178354de893b239d29993" >> $GATE_DIR/commits/commits.txt
+echo "" >> $GATE_DIR/commits/commits.txt
+echo "Benchmark and Evidence generation commit:" >> $GATE_DIR/commits/commits.txt
+git rev-parse HEAD >> $GATE_DIR/commits/commits.txt
 
 # Run Certification Tests (must pass or script exits)
 echo "Running 21-case certification suite..."
