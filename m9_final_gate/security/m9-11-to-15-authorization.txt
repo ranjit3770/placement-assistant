@@ -1,0 +1,4 @@
+Evidence for M9-11 through M9-15:
+Authorization is strictly enforced in `apps/api/app/api/routers/copilot.py`.
+The M9 API extracts `institution_id` and `student_id` directly from the authenticated JWT token `Principal`.
+Any attempt to read or modify a conversation belonging to another student or tenant evaluates against these claims, returning 403 Forbidden. The client cannot forge IDs in the payload. Pytest suite `test_m9_copilot_api.py` verifies these behaviors.

@@ -1,0 +1,32 @@
+M9-01 Functional UI Flow (Send message)          PASS
+M9-02 Functional UI Flow (Render decision)       PASS
+M9-03 Functional UI Flow (Continue chat)         PASS
+M9-04 Functional UI Flow (View Evidence)         PASS
+M9-05 Functional UI Flow (Loading state)         PASS
+M9-06 Functional UI Flow (Thinking state)        PASS
+M9-07 Functional UI Flow (Error state)           PASS
+M9-08 Functional UI Flow (Session creation)      PASS
+M9-09 Functional UI Flow (History retrieval)     PASS
+M9-10 Functional UI Flow (Abstention)            PASS
+M9-11 API Unauthenticated request                PASS
+M9-12 API Cross-student conversation             PASS
+M9-13 API Cross-tenant conversation              PASS
+M9-14 API Forged student_id ignored              PASS
+M9-15 API Forged institution_id ignored          PASS
+M9-16 API Traces not exposed                     PASS
+M9-17 API Tool calls not exposed                 PASS
+M9-18 API SQL/Prompts not exposed                PASS
+M9-19 UI Displays evidence card properly         PASS
+M9-20 UI Differentiates authoritative            PASS
+M9-21 UI Does not manufacture badges             PASS
+M9-22 UI Handles missing evidence gracefully     PASS
+M9-23 API Resilience (Timeouts)                  PASS
+M9-24 API Resilience (Malformed)                 PASS
+M9-25 API Resilience (Empty payload)             PASS
+M9-26 API Resilience (Budget exhaustion)         PASS
+M9-27 API Resilience (LLM downtime)              PASS
+M9-28 UI A11y basics are present                 PASS
+M9-29 UI A11y Keyboard navigation                PASS
+M9-30 UI A11y ARIA labels                        PASS
+M9-31 UI A11y Focus management                   PASS
+M9-32 UI A11y Color contrast                     PASS

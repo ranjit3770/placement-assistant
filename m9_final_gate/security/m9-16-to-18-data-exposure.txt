@@ -1,0 +1,2 @@
+Evidence for M9-16 through M9-18:
+The frontend API acts as a strict boundary. The DTO schemas (`CopilotAgentResponse`, `CopilotMessage`) explicitly exclude internal metadata (tool calls, query traces, embedded vectors). The DTO guarantees these fields are not serialized and sent to the client. Verified by `test_m9_flow` which checks that the raw output is clean.

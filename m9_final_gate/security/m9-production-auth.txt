@@ -1,0 +1,2 @@
+Evidence for mock JWT development-only boundary:
+The mock JWT authentication form in `apps/web/app/copilot/page.tsx` explicitly checks `process.env.NODE_ENV === 'production'`. When the Next.js application is built for production, this mock UI is entirely excluded from rendering, yielding a strict "Unauthorized" message instead. This prevents any production bypass utilizing mock JWTs.

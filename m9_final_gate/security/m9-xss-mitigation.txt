@@ -1,0 +1,2 @@
+Evidence for UI XSS mitigation:
+The Next.js React frontend uses `react-markdown` to render the AI explanation text. We have verified via Playwright tests (`apps/web/tests/m9-copilot.spec.ts`) that malicious HTML/JavaScript payloads (e.g., `<script>`) injected from the mock API response are neutralized by `react-markdown` and do not execute in the browser.
